@@ -1,0 +1,6 @@
+{
+	"recommendations": [
+		"dbaeumer.vscode-eslint",
+		"GitHub.vscode-pull-request-github"
+	]
+}
