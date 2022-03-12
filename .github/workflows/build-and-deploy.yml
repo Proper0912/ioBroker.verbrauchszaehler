@@ -21,3 +21,4 @@ jobs:
         run: yarn build
       - name: Deploy Site
         run: yarn netlify deploy -a ${{ secrets.NETLIFY_AUTH_TOKEN }} -s ${{ secrets.NETLIFY_SITE_ID }} -d public -p
+        
