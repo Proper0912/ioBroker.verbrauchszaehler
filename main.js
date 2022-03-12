@@ -143,7 +143,7 @@ class Verbrauchszaehler extends utils.Adapter {
 			// clearTimeout(timeout2);
 			// ...
 			// clearInterval(interval1);
-			this.setStateAsync("connect", { val: false, ack: false });
+			this.setStateAsync("connect", { val: false, ack: true });
 
 
 			callback();
