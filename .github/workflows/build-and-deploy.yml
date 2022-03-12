@@ -8,3 +8,16 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+      - name: Restore Node Modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+                        ${{ runner.os }}-modules-
+      - name: Install Dependencies
+        run: yarn --frozen-lockfile
+      - name: Build Site
+        run: yarn build
+      - name: Deploy Site
+        run: yarn netlify deploy -a ${{ secrets.NETLIFY_AUTH_TOKEN }} -s ${{ secrets.NETLIFY_SITE_ID }} -d public -p
