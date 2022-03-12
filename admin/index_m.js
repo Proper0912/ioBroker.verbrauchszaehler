@@ -24,8 +24,8 @@ function stopCounter() {
 }
 
 function load(settings, onChange) {
-        if (!settings)
-            return;
+        if (!settings) return;
+
         $('.value').each(function () {
             var $key = $(this);
             var id = $key.attr('id');
@@ -47,7 +47,17 @@ function load(settings, onChange) {
         M.updateTextFields();  // function Materialize.updateTextFields(); to reinitialize all the Materialize labels on the page if you are dynamically adding inputs.
 
         M.Range.init($('input[type=range]'));
-    }
+
+    $('#triggerIDPopUp').on('click', function () {
+        initSelectId(function (sid) {
+            sid.selectId('show', $('#triggerID').val(), function (newId) {
+                if (newId) {
+                    $('#triggerID').val(newId).trigger('change');
+                }
+            });
+        });
+    });
+}
 
 // ... and the function save has to exist.
 // you have to make sure the callback is called with the settings object as first param!
@@ -65,5 +75,40 @@ function save(callback) {
         callback(obj);
     }
 
-// Signal to admin, that no changes yet
-onChange(false);
+var selectId;
+function initSelectId(callback) {
+    if (selectId) {
+        return callback(selectId);
+    }
+    socket.emit('getObjects', function (err, objs) {
+        selectId = $('#dialog-select-member').selectId('init', {
+            noMultiselect: true,
+            objects: objs,
+            imgPath: '../../lib/css/fancytree/',
+            filter: { type: 'state' },
+            name: 'scenes-select-state',
+            texts: {
+                select: _('Select'),
+                cancel: _('Cancel'),
+                all: _('All'),
+                id: _('ID'),
+                name: _('Name'),
+                role: _('Role'),
+                room: _('Room'),
+                value: _('Value'),
+                selectid: _('Select ID'),
+                from: _('From'),
+                lc: _('Last changed'),
+                ts: _('Time stamp'),
+                wait: _('Processing...'),
+                ack: _('Acknowledged'),
+                selectAll: _('Select all'),
+                unselectAll: _('Deselect all'),
+                invertSelection: _('Invert selection')
+            },
+            columns: ['image', 'name', 'role', 'room']
+        });
+        callback(selectId);
+    });
+}
+

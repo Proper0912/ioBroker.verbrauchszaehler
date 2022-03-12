@@ -19,15 +19,14 @@
     <script type="text/javascript" src="../../lib/js/jquery.fancytree-all.min.js"></script>
 	
 	<script type="text/javascript" src="./jquery.ui.touch-punch.min.js"></script>
+
+	<!-- Load our own files -->
+	<link rel="stylesheet" type="text/css" href="style.css" />
     <script type="text/javascript" src="type-detector.js"></script>
 	<script type="text/javascript" src="words.js"></script>
     <script type="text/javascript" src="index_m.js"></script> 
 
-	<!-- Load our own files -->
-	<link rel="stylesheet" type="text/css" href="style.css" />
-
-	<script type="text/javascript">
-	</script>
+	<script type="text/javascript"></script>
 </head>
 
 <body>
@@ -71,8 +70,19 @@
 					<div class="row">
 						<div class="input-field col s10">
                    	     <input class="value" type="text" id="id" />
-                   	     <label for="id" class="translate">ID:</label>
+                   	     <label for="id" class="translate"></label>
 						<span class="translate" ></span>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col s6 l4 input-field">
+							<input type="text" class="value" id="triggerID" />
+							<label for="triggerID" class="translate"></label>
+							<span class="translate">ID:</span>
+						</div>
+						<div class="col s1 m2 l1">
+							<a id="triggerIDPopUp" class="btn-floating waves-effect waves-light blue table-button-add trigger-add"><i class="material-icons">add</i></a>
 						</div>
 					</div>
 
@@ -370,6 +380,23 @@
 				</div>
 			</div>
 
+		</div>
+	</div>
+	<div class="m material-dialogs">
+		<div id="dialog-select-member" class="modal modal-fixed-footer">
+			<div class="modal-content">
+				<div class="row">
+					<div class="col s12 title"></div>
+				</div>
+				<div class="row">
+					<div class="col s12 dialog-content">
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<a class="modal-action modal-close waves-effect waves-green btn btn-set"><i class="large material-icons left">check</i><span class="translate">Select</span></a>
+				<a class="modal-action modal-close waves-effect waves-green btn btn-close"><i class="large material-icons left ">close</i><span class="translate">Cancel</span></a>
+			</div>
 		</div>
 	</div>
 	<!--
