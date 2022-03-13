@@ -1,5 +1,6 @@
 "use strict";
 
+
 /*
  * Created with @iobroker/create-adapter v2.1.0
  */
@@ -7,6 +8,115 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
+const querystring = require('querystring');
+const schedule = require('node-schedule');
+const adapterName = require('./package.json').name.split('.').pop();
+
+
+let adapter;
+let timerSleep;
+let settingsID = {
+	"triggerID": String,
+	"medium": Number,
+	"day": Boolean,
+	"week": Boolean,
+	"month": Boolean,
+	"year": Boolean
+	};
+
+function startAdapter(options) {
+	options = options || {};
+	Object.assign(options, {
+		name: adapterName,
+	});
+	adapter = new utils.Adapter(options);
+
+	settingsID = {
+		"triggerID": adapter.config.triggerID,
+		"medium": adapter.config.medium,
+		"day": adapter.config.day,
+		"week": adapter.config.week,
+		"month": adapter.config.month,
+		"year": adapter.config.year
+		};
+
+	// start here!
+	adapter.on('ready', () => main(adapter));
+
+    // +++++++++++++++++++++++++ is called when adapter shuts down +++++++++++++++++++++++++
+
+    adapter.on('unload', (callback) => {
+
+        try {
+            adapter.log.info('cleaned everything up...');
+            clearTimeout(timerSleep);
+            callback();
+        } catch (e) {
+            callback(e);
+        }
+    });
+
+	// ++++++++++++++++++ is called if a subscribed state changes ++++++++++++++++++
+
+    adapter.on('stateChange', async (id, state) => {
+		if (state) {
+			// The state was changed
+			adapter.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+			adapter.getValue(settingsID)
+		} else {
+			// The state was deleted
+			adapter.log.info(`state ${id} deleted`);
+		}
+	});
+
+	return settingsID;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ main on start of Adapter ++++++++++++++++++++
+
+function main(adapter) {
+
+	adapter.setObjectNotExistsAsync("alive", {
+		type: "state",
+		common: {
+			name: "connect",
+			type: "boolean",
+			role: "state",
+			read: true,
+			write: true,
+			def: false,
+		},
+		native: {},
+	});
+	adapter.setObjectNotExistsAsync(settingsID.medium + ".connect", {
+		type: "state",
+		common: {
+			name: "connect",
+			type: "boolean",
+			role: "state",
+			read: true,
+			write: true,
+			def: false,
+		},
+		native: {},
+	});
+	adapter.setObjectNotExistsAsync(settingsID.medium + ".instanceValue", {
+		type: "state",
+		common: {
+			name: "instanceValue" + settingsID.medium,
+			type: "number",
+			role: "state",
+			read: true,
+			write: true,
+			def: 0,
+			unit: "",
+		},
+		native: {},
+	});
+
+};
 
 // Load your modules here, e.g.:
 // const fs = require("fs"); hallo
@@ -27,41 +137,50 @@ class Verbrauchszaehler extends utils.Adapter {
 		// this.on("message", this.onMessage.bind(this));
 		this.on("unload", this.onUnload.bind(this));
 	}
-
+	
+	
+		
+	
+	
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
-		// Initialize your adapter here
 
-		// The adapters config (in the instance object everything under the attribute "native") is accessible via
-		// this.config:
-		//this.log.info("config medium: " + this.config.medium);
+		
 
-		/*
-		For every state in the system there has to be also an object of type state
-		Here a simple template for a boolean variable named "testVariable"
-		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-		*/
-		var medium = this.config.medium;
+		// Als erstes wird geschaut welche Settings aktiv sin oder nicht
 
-		await this.setObjectNotExistsAsync("connect", {
+		this.setObjectNotExistsAsync("alive", {
 			type: "state",
 			common: {
 				name: "connect",
 				type: "boolean",
-				role: "indicator",
+				role: "state",
 				read: true,
 				write: true,
+				def: false,
 			},
 			native: {},
 		});
-		await this.setObjectNotExistsAsync(medium + ".LastDay", {
+		this.setObjectNotExistsAsync(settingsID.medium + ".connect", {
 			type: "state",
 			common: {
-				name: "LastDay",
+				name: "connect",
+				type: "boolean",
+				role: "state",
+				read: true,
+				write: true,
+				def: false,
+			},
+			native: {},
+		});
+		this.setObjectNotExistsAsync(settingsID.medium + ".instanceValue", {
+			type: "state",
+			common: {
+				name: "instanceValue" + settingsID.medium,
 				type: "number",
-				role: "indicator",
+				role: "state",
 				read: true,
 				write: true,
 				def: 0,
@@ -69,33 +188,7 @@ class Verbrauchszaehler extends utils.Adapter {
 			},
 			native: {},
 		});
-		await this.setObjectNotExistsAsync(medium + ".LastQuantityOf" + medium, {
-			type: "state",
-			common: {
-				name: "LastQuantityof" + medium,
-				type: "number",
-				role: "indicator",
-				read: true,
-				write: true,
-				def: 0,
-				unit: "",
-			},
-			native: {},
-		});
-		await this.setObjectNotExistsAsync(medium + ".NewQuantityOf" + medium, {
-			type: "state",
-			common: {
-				name: "NewQuantityOf" + medium,
-				type: "number",
-				role: "indicator",
-				read: true,
-				write: true,
-				def: 0,
-				unit: "",
-			},
-			native: {},
-		});
-
+		
 
 		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
 		this.subscribeStates("*");
@@ -125,11 +218,37 @@ class Verbrauchszaehler extends utils.Adapter {
 		//result = await this.checkGroupAsync("admin", "admin");
 		//this.log.info("check group user admin group admin: " + result);
 
-		if (this) {
-			await this.setStateAsync("connect", { val: true, ack: true });
+		
+		//var value = Object;
+		//this.getStatesOf(triggerID, value.val ) 
+		//	this.log.info(triggerID + " = " + value.vel);
+		//this.setState(medium + ".instanceValue", (value), true);
+		
+		this.getValue(settingsID);
+		if (this.connected) {
+			this.setStateAsync("alive", { val: true, ack: true });
 		} else {
 			this.log.error("Instance not startet");
 		}
+	}
+
+
+	
+
+	getValue(settingsID){
+        this.getForeignState(settingsID.triggerID, (err, state) => {
+            // state can be null!
+            if (state) {
+				this.setState(settingsID.medium + ".instanceValue",{ val: state.val, ack: true })
+				sleep(5000)
+            }
+        });
+
+		//var instanceValue = (this.config.medium + ".instanceValue");
+
+		//this.log.info("Aufruf funktioniert = " + instanceValue);
+
+		//this.setState(instanceValue,{val: 200, ack: true});
 	}
 
 	/**
@@ -143,7 +262,8 @@ class Verbrauchszaehler extends utils.Adapter {
 			// clearTimeout(timeout2);
 			// ...
 			// clearInterval(interval1);
-			this.setStateAsync("connect", { val: false, ack: true });
+			this.setStateAsync("alive", { val: false, ack: true });
+            clearTimeout(timerSleep);
 
 
 			callback();
@@ -178,6 +298,7 @@ class Verbrauchszaehler extends utils.Adapter {
 		if (state) {
 			// The state was changed
 			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+			this.getValue(settingsID)
 		} else {
 			// The state was deleted
 			this.log.info(`state ${id} deleted`);
@@ -204,13 +325,28 @@ class Verbrauchszaehler extends utils.Adapter {
 
 }
 
-if (require.main !== module) {
+
+async function sleep(ms) {
+	return new Promise(async (resolve) => {
+		// @ts-ignore
+			timerSleep = setTimeout(async () => resolve(), ms);
+	});
+}
+
+//if (require.main !== module) {
 	// Export the constructor in compact mode
 	/**
 	 * @param {Partial<utils.AdapterOptions>} [options={}]
 	 */
-	module.exports = (options) => new Verbrauchszaehler(options);
-} else {
+//	module.exports = (options) => new Verbrauchszaehler(options);
+//} else {
 	// otherwise start the instance directly
-	new Verbrauchszaehler();
+//	new Verbrauchszaehler();
+//}
+
+if (module && module.parent) {
+	module.exports = startAdapter;
+} else {
+	// or start the instance directly
+	startAdapter();
 }
