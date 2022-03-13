@@ -10,18 +10,19 @@
 const utils = require("@iobroker/adapter-core");
 const querystring = require('querystring');
 const schedule = require('node-schedule');
+const { callbackify } = require("util");
 const adapterName = require('./package.json').name.split('.').pop();
 
 
 let adapter;
-let timerSleep;
+let timerSleep = 0;
 let settingsID = {
-	"triggerID": String,
-	"medium": Number,
-	"day": Boolean,
-	"week": Boolean,
-	"month": Boolean,
-	"year": Boolean
+	"triggerID": "",
+	"medium": "",
+	"day": false,
+	"week": false,
+	"month": false,
+	"year": false
 	};
 
 function startAdapter(options) {
@@ -31,14 +32,8 @@ function startAdapter(options) {
 	});
 	adapter = new utils.Adapter(options);
 
-	settingsID = {
-		"triggerID": adapter.config.triggerID,
-		"medium": adapter.config.medium,
-		"day": adapter.config.day,
-		"week": adapter.config.week,
-		"month": adapter.config.month,
-		"year": adapter.config.year
-		};
+	settingsID = adapter.config;
+
 
 	// start here!
 	adapter.on('ready', () => main(adapter));
@@ -49,6 +44,7 @@ function startAdapter(options) {
 
         try {
             adapter.log.info('cleaned everything up...');
+			adapter.setStateAsync("alive", { val: false, ack: true });
             clearTimeout(timerSleep);
             callback();
         } catch (e) {
@@ -62,21 +58,61 @@ function startAdapter(options) {
 		if (state) {
 			// The state was changed
 			adapter.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-			adapter.getValue(settingsID)
+			await sleep(15000)
 		} else {
 			// The state was deleted
 			adapter.log.info(`state ${id} deleted`);
 		}
 	});
 
-	return settingsID;
+	//return settingsID;
 };
+
+const calc = schedule.scheduleJob('calcTimer', '58 * * * * *', async function () {
+	if (settingsID.triggerID > "" && settingsID.medium > "" ){
+		getValue(settingsID);
+
+	}else {
+		adapter.log.error("Keine referens Objekt-ID oder Medium angegeben")
+	}
+})
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ sleep function for Adapter ++++++++++++++++++++
+
+async function sleep(ms) {
+	return new Promise(async (resolve) => {
+		// @ts-ignore
+			timerSleep = setTimeout(async () => resolve(), ms);
+	});
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ get Value from other Adapter ++++++++++++++++++++
+
+async function getValue(settingsID){
+	adapter.getForeignState(settingsID.triggerID, (err, state) => {
+		// state can be null!
+		if (state) {
+			adapter.setState(settingsID.medium + ".instanceValue",{ val: state.val, ack: true })
+			
+		} else{
+			adapter.log.info(err)
+		}
+	});
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // +++++++++++++++++++ main on start of Adapter ++++++++++++++++++++
 
 function main(adapter) {
+
+	settingsID = adapter.config;
+	
+	// +++++++++++++++++++ basic framework of Adapter ++++++++++++++++++++
 
 	adapter.setObjectNotExistsAsync("alive", {
 		type: "state",
@@ -90,32 +126,84 @@ function main(adapter) {
 		},
 		native: {},
 	});
-	adapter.setObjectNotExistsAsync(settingsID.medium + ".connect", {
-		type: "state",
-		common: {
-			name: "connect",
-			type: "boolean",
-			role: "state",
-			read: true,
-			write: true,
-			def: false,
-		},
-		native: {},
-	});
-	adapter.setObjectNotExistsAsync(settingsID.medium + ".instanceValue", {
-		type: "state",
-		common: {
-			name: "instanceValue" + settingsID.medium,
-			type: "number",
-			role: "state",
-			read: true,
-			write: true,
-			def: 0,
-			unit: "",
-		},
-		native: {},
-	});
 
+	// +++++++++++++++++++ basic framework with medium of Adapter ++++++++++++++++++++
+
+	if ( settingsID.triggerID > "" && settingsID.medium > "" ){
+
+		adapter.setObjectNotExistsAsync(settingsID.medium + ".connect", {
+			type: "state",
+			common: {
+				name: "connect",
+				type: "boolean",
+				role: "state",
+				read: true,
+				write: true,
+				def: false,
+			},
+			native: {},
+		});
+		adapter.setObjectNotExistsAsync(settingsID.medium + ".instanceValue", {
+			type: "state",
+			common: {
+				name: "instanceValue_" + settingsID.medium,
+				type: "number",
+				role: "state",
+				read: true,
+				write: true,
+				def: 0,
+				unit: "",
+			},
+			native: {},
+		});
+
+		// +++++++++++++++++++ basic framework with and without Day of Adapter ++++++++++++++++++++
+
+		if ( settingsID.day === false ) {
+
+			adapter.setObjectNotExistsAsync(settingsID.medium + ".lastValue", {
+				type: "state",
+				common: {
+					name: "lastValue_" + settingsID.medium,
+					type: "number",
+					role: "state",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+
+			adapter.setObjectNotExistsAsync(settingsID.medium + ".diffValue", {
+				type: "state",
+				common: {
+					name: "diffValue_" + settingsID.medium,
+					type: "number",
+					role: "state",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+		}
+
+
+		adapter.subscribeStates("*");
+
+		getValue(settingsID);
+		
+	} else {
+		adapter.log.error("Keine referens Objekt-ID oder Medium angegeben")
+	}
+	
+	if (adapter.connected) {
+		adapter.setStateAsync("alive", { val: true, ack: true });
+	} else {
+		adapter.log.error("Instance not startet");
+	}
 };
 
 // Load your modules here, e.g.:
@@ -326,12 +414,7 @@ class Verbrauchszaehler extends utils.Adapter {
 }
 
 
-async function sleep(ms) {
-	return new Promise(async (resolve) => {
-		// @ts-ignore
-			timerSleep = setTimeout(async () => resolve(), ms);
-	});
-}
+
 
 //if (require.main !== module) {
 	// Export the constructor in compact mode
