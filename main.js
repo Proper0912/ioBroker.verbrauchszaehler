@@ -10,20 +10,52 @@
 const utils = require("@iobroker/adapter-core");
 const querystring = require('querystring');
 const schedule = require('node-schedule');
-const { callbackify } = require("util");
 const adapterName = require('./package.json').name.split('.').pop();
 
 
 let adapter;
 let timerSleep = 0;
-let settingsID = {
-	"triggerID": "",
-	"medium": "",
-	"day": false,
-	"week": false,
-	"month": false,
-	"year": false
-	};
+let settingsID = { "triggerID": "", "medium": "",	"day": false, "week": false,	"month": false,	"year": false };
+const today = new Date();
+let day = { 0:"Montag", 1:"Dienstag", 2:"Mittwoch", 3:"Donerstag", 4:"Freitag", 5:"Samstag", 6:"Sonntag"};
+let maxDay = maxDayOfYear();
+let maxWeek = maxWeekOfYear();
+let month = today.getUTCMonth();
+var months = dayPerMonth();
+let year = today.getFullYear();
+let hours = today.getHours();
+let minutes = today.getMinutes();
+
+
+function maxDayOfYear(maxDays) {
+	const oneJan = new Date(today.getFullYear(), 0, 1);
+	const lastDec = new Date(today.getFullYear(), 11, 31);
+	// @ts-ignore
+	maxDays = Math.round((lastDec -  oneJan) / (24*60*60*1000));
+	return maxDays;
+}
+
+function maxWeekOfYear(maxWeeks) {
+	var oneJan = new Date(today.getFullYear(),0,1);
+	var lastDec = new Date(today.getFullYear(),11,31);
+	if (oneJan.getDay() === 4 || lastDec.getDay() === 4) {
+		maxWeeks = 53;
+	} else {
+		maxWeeks = 52;
+	}
+	return maxWeeks;
+}
+
+function dayPerMonth() {
+	var months = new Array();
+	var i = today.getFullYear();
+		if(i%4 == 0 && (i%100 != 0 || i%400 == 0)){ //Schaltjahr wenn jahr durch 4, nicht aber durch 100 ausser durch 400
+			months[i] = {0:31,1:29,2:31,3:30,4:31,5:30,6:31,7:31,8:30,9:31,10:30,11:31};
+		} else{ //kein Schaltjahr
+			months[i] = {0:31,1:28,2:31,3:30,4:31,5:30,6:31,7:31,8:30,9:31,10:30,11:31};
+		}
+	return months
+}
 
 function startAdapter(options) {
 	options = options || {};
@@ -111,6 +143,9 @@ async function getValue(settingsID){
 function main(adapter) {
 
 	settingsID = adapter.config;
+
+
+	adapter.log.info(maxWeek + " " + maxDay + " " + months[year][1] + " Tag: "+ day[((today.getDay() +6)%7)] + " den: " + today.getDate() + " Monat: " + month + " Jahr: " + year + " Stunde: " + hours + " Minute: " + minutes);
 	
 	// +++++++++++++++++++ basic framework of Adapter ++++++++++++++++++++
 
@@ -157,14 +192,14 @@ function main(adapter) {
 			native: {},
 		});
 
-		// +++++++++++++++++++ basic framework with and without Day of Adapter ++++++++++++++++++++
+		// +++++++++++++++++++ basic framework without Day selected of Adapter ++++++++++++++++++++
 
 		if ( settingsID.day === false ) {
 
-			adapter.setObjectNotExistsAsync(settingsID.medium + ".lastValue", {
+			adapter.setObjectNotExistsAsync(settingsID.medium + ".calc.dayLastValue", {
 				type: "state",
 				common: {
-					name: "lastValue_" + settingsID.medium,
+					name: "calc_dayLastValue_" + settingsID.medium,
 					type: "number",
 					role: "state",
 					read: true,
@@ -175,10 +210,10 @@ function main(adapter) {
 				native: {},
 			});
 
-			adapter.setObjectNotExistsAsync(settingsID.medium + ".diffValue", {
+			adapter.setObjectNotExistsAsync(settingsID.medium + ".calc.dayDiffValue", {
 				type: "state",
 				common: {
-					name: "diffValue_" + settingsID.medium,
+					name: "alc_dayDiffValue_" + settingsID.medium,
 					type: "number",
 					role: "state",
 					read: true,
@@ -188,6 +223,161 @@ function main(adapter) {
 				},
 				native: {},
 			});
+		} else {
+			adapter.delObject(settingsID.medium + ".calc.dayLastValue", function (err) {
+                if (err) {
+                    adapter.log.warn(err);
+                }
+            });
+			adapter.delObject(settingsID.medium + ".calc.dayDiffValue", function (err) {
+                if (err) {
+                    adapter.log.warn(err);
+                }
+            });
+		}
+
+		// +++++++++++++++++++ basic framework with Day selected of Adapter ++++++++++++++++++++
+
+		if ( settingsID.day === true && settingsID.month === false ){
+			
+			adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".calc.dayLastValue", {
+				type: "state",
+				common: {
+					name: "calc_dayLastValue_" + settingsID.medium,
+					type: "number",
+					role: "state",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+			adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".calc.dayDiffValue", {
+				type: "state",
+				common: {
+					name: "calc_dayDiffValue_" + settingsID.medium,
+					type: "number",
+					role: "state",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+			
+			for ( var i = 1; i <= maxDay; i++)  {
+	
+				adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".day." + i + ".dayValue", {
+					type: "state",
+					common: {
+						name: "lastValue_" + settingsID.medium,
+						type: "number",
+						role: "state",
+						read: true,
+						write: true,
+						def: 0,
+						unit: "",
+					},
+					native: {},
+				});
+
+			};
+
+		} else {
+			adapter.delObject(settingsID.medium + "." + year + ".calc.dayLastValue", function (err) {
+                if (err) {
+                    adapter.log.warn(err);
+                }
+            });
+			adapter.delObject(settingsID.medium + "." + year + ".calc.dayDiffValue", function (err) {
+                if (err) {
+                    adapter.log.warn(err);
+                }
+            });
+
+			for ( var i = 1; i <= maxDay; i++)  { 
+				adapter.delObject(settingsID.medium + "." + year + ".day." + i + ".dayValue", function (err) {
+					if (err) {
+						adapter.log.warn(err);
+					}
+				});
+			};
+		}
+
+		// +++++++++++++++++++ basic framework with Week selected of Adapter ++++++++++++++++++++
+
+		if ( settingsID.week === true ){
+			
+			adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".calc.weekLastValue", {
+				type: "state",
+				common: {
+					name: "calc_weekLastValue_" + settingsID.medium,
+					type: "number",
+					role: "state",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+			adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".calc.weekDiffValue", {
+				type: "state",
+				common: {
+					name: "calc_weekDiffValue_" + settingsID.medium,
+					type: "number",
+					role: "state",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+			
+			for ( var i = 1; i <= maxWeek; i++)  {
+				for (var d =1; d <= 7; d++) {
+					adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".week." + i + "." + d + ".dayValue", {
+						type: "state",
+						common: {
+							name: "lastValue_" + settingsID.medium,
+							type: "number",
+							role: "state",
+							read: true,
+							write: true,
+							def: 0,
+							unit: "",
+						},
+						native: {},
+					});
+				};
+
+			};
+
+		} else {
+			adapter.delObject(settingsID.medium + "." + year + ".calc.weekLastValue", function (err) {
+                if (err) {
+                    adapter.log.warn(err);
+                }
+            });
+			adapter.delObject(settingsID.medium + "." + year + ".calc.weekLastValue", function (err) {
+                if (err) {
+                    adapter.log.warn(err);
+                }
+            });
+
+			for ( var i = 1; i <= maxDay; i++)  { 
+				
+				for (var d =1; d <= 7; d++) {
+					adapter.delObject(settingsID.medium + "." + year + ".week." + i + "." + d + ".dayValue", function (err) {
+						if (err) {
+							adapter.log.warn(err);
+						}
+					});
+				};
+			};
 		}
 
 
