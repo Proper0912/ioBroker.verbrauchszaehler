@@ -14,6 +14,18 @@
         "es": "Versión inicial",
         "pl": "Pierwsze wydanie",
         "zh-cn": "首次出版"
+      },
+      "0.0.2": {
+        "en": "basic calculations",
+        "de": "Grundlegende Berechnungen",
+        "ru": "основные расчеты",
+        "pt": "cálculos básicos",
+        "nl": "basisberekeningen",
+        "fr": "calculs de base",
+        "it": "calcoli di base",
+        "es": "calculos basicos",
+        "pl": "podstawowe obliczenia",
+        "zh-cn": "基本計算"
       }
     },
     "title": "Verbrauchzähler",
@@ -63,7 +75,8 @@
     "keywords": [
       "verbrauchszaehler",
       "medium zaehler",
-      "analyse"
+      "analyse",
+      "medium calculation"
     ],
     "extIcon": "https://raw.githubusercontent.com/proper0912/ioBroker.verbrauchszaehler/main/admin/verbrauchszaehler.png",
     "type": "storage",

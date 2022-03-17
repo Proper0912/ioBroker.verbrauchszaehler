@@ -16,8 +16,9 @@ const adapterName = require('./package.json').name.split('.').pop();
 let debug;
 let instAdapter = ``;
 let adapter = {};
-let settingsID = {}; //   "triggerID": "", "medium": "", "day": false, "week": false, "month": false, "year": false 
+let settingsID = {};
 let timerSleep = 0;
+
 let day = { 0:"Montag", 1:"Dienstag", 2:"Mittwoch", 3:"Donerstag", 4:"Freitag", 5:"Samstag", 6:"Sonntag"};
 let maxDay = 0;
 let maxWeeks = 0;
@@ -27,6 +28,12 @@ let poll = null;
 let poll2 = null;
 let value = { "hour":0, "hourDiff":0, "hourLast":0,"day":0, "dayDiff":0, "dayLast":0, "week":0, "weekdiff":0, "weekLast":0, "month":0, "monthDiff":0, "monthLast":0 }
 
+let statistic = {calc: {}, 
+				lastSevenDay:{}, 
+				lastTwoWeek:{}, 
+				averageOfDay: {twoDay:0, sevenDay:0, twoWeek:0, oneMonth:0, twoMonth:0, sixMonth:0, year:0, completeDay:0}, 
+				averageOfWeek:{twoWeek:0, fourWeek:0, twoMonth:0, threeMonth:0, fourMonth:0, sixMonth:0, year:0, completeWeek:0}, 
+				averageOfMonth: {fourWeek:0, twoMonth:0, threeMonth:0, fourMonth:0, sixMonth:0, year:0, completeMonth:0} }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -178,7 +185,7 @@ function getValue(settingsID){
 }
 
  /**
- * @param {{ today: Date; date: { seconds: number; minutes: number; hours: number; day: number; month: number; year: number; }; }} settingsID
+ * @param {{ today: Date; date: { seconds: number; minutes: number; hours: number; day: number; month: number; year: number; lastYear: number; }; }} settingsID
  */
  function getDateOfInstanc(settingsID) {
 	
@@ -191,6 +198,7 @@ function getValue(settingsID){
 	settingsID.date.day = ((settingsID.today.getDay() +6)%7); 
 	settingsID.date.month = new Date().getMonth();
 	settingsID.date.year = new Date().getFullYear();
+	settingsID.date.lastYear = settingsID.date.year - 1;
 
 
 }
@@ -204,7 +212,7 @@ function main(adapter) {
 	settingsID = adapter.config;
 
 	// Date definition
-	settingsID.date = {seconds:0, minutes:0, hours:0, date:0, day:0, month:0, year:0 };
+	settingsID.date = {seconds:0, minutes:0, hours:0, date:0, day:0, month:0, year:0, lastYear:0 };
 	settingsID.today;
 	
 	// @ts-ignore
@@ -317,7 +325,7 @@ function main(adapter) {
 				},
 				native: {},
 			});
-		} /**else {
+		} else {
 			adapter.delObject(settingsID.medium + ".calc.dayLastValue", function (err) {
                 if (err) {
                     adapter.log.warn(err);
@@ -328,7 +336,7 @@ function main(adapter) {
                     adapter.log.warn(err);
                 }
             });
-		}*/
+		}
 
 		// +++++++++++++++++++ basic framework with Day withot Month selected of Adapter ++++++++++++++++++++
 
@@ -379,26 +387,7 @@ function main(adapter) {
 
 			};
 
-		} /**else {
-			adapter.delObject(settingsID.medium + "." + year + ".calc.dayLastValue", function (err) {
-                if (err) {
-                    adapter.log.warn(err);
-                }
-            });
-			adapter.delObject(settingsID.medium + "." + year + ".calc.dayDiffValue", function (err) {
-                if (err) {
-                    adapter.log.warn(err);
-                }
-            });
-
-			for ( var i = 1; i <= maxDay; i++)  { 
-				adapter.delObject(settingsID.medium + "." + year + ".day." + i + ".dayValue", function (err) {
-					if (err) {
-						adapter.log.warn(err);
-					}
-				});
-			};
-		}*/
+		} 
 
 		// +++++++++++++++++++ basic framework with Week selected of Adapter ++++++++++++++++++++
 
@@ -729,14 +718,14 @@ async function pollingData(cmd, settingsID) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// +++++++++++++++++++ calc for day Value of Adapter ++++++++++++++++++++ /** settingsID.date.hours === 23 && settingsID.date.minutes ==59 &&*/ 
+// +++++++++++++++++++ calc for day Value of Adapter ++++++++++++++++++++ 
 
 function calcDayValue(settingsID) {
 	
 	var m = settingsID.date.month + 1; 
 	var d = settingsID.date.day + 1;
 
-	if ( settingsID.date.seconds > 50 && settingsID.date.seconds <55 ) {
+	if (settingsID.date.hours === 23 && settingsID.date.minutes === 59 && settingsID.date.seconds > 50 && settingsID.date.seconds <55 ) {
 		
 		// ******************** calculation days for the month statistic ***************************
 
@@ -825,7 +814,7 @@ function calcDayValue(settingsID) {
 		}
 		
 	} else {
-		adapter.log.debug("seconds = " + settingsID.date.seconds);
+		adapter.log.debug(`Timestamp = ${settingsID.date.hours}:${settingsID.date.minutes}:${settingsID.date.seconds} in 2 seconds steps`);
 	}
 
 }
