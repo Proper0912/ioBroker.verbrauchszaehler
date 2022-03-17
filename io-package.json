@@ -82,8 +82,7 @@
     "type": "storage",
     "connectionType": "local",
     "dataSource": "none",
-    "tier": 3,
-    "installedFrom": "proper0912/ioBroker.verbrauchszaehler#49aaa1c117944627dbc04da3b6f0488fdc90885d"
+    "tier": 3
   },
   "native": {
     "triggerID": " ",
