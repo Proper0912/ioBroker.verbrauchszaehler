@@ -81,7 +81,7 @@
     "extIcon": "https://raw.githubusercontent.com/proper0912/ioBroker.verbrauchszaehler/main/admin/verbrauchszaehler.png",
     "type": "storage",
     "connectionType": "local",
-    "dataSource": "none",
+    "dataSource": "push",
     "tier": 3
   },
   "native": {
