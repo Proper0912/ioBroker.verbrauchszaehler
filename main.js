@@ -10,61 +10,42 @@
 const utils = require("@iobroker/adapter-core");
 const querystring = require('querystring');
 const schedule = require('node-schedule');
+const { callbackify } = require("util");
 const adapterName = require('./package.json').name.split('.').pop();
 
-
-let adapter;
+let debug;
+let instAdapter = ``;
+let adapter = {};
+let settingsID = {}; //   "triggerID": "", "medium": "", "day": false, "week": false, "month": false, "year": false 
 let timerSleep = 0;
-let settingsID = { "triggerID": "", "medium": "",	"day": false, "week": false,	"month": false,	"year": false };
-const today = new Date();
 let day = { 0:"Montag", 1:"Dienstag", 2:"Mittwoch", 3:"Donerstag", 4:"Freitag", 5:"Samstag", 6:"Sonntag"};
-let maxDay = maxDayOfYear();
-let maxWeek = maxWeekOfYear();
-let month = today.getUTCMonth();
-var months = dayPerMonth();
-let year = today.getFullYear();
-let hours = today.getHours();
-let minutes = today.getMinutes();
+let maxDay = 0;
+let maxWeeks = 0;
+let acktualWeek = 0;
+let months = {};
+let poll = null;
+let poll2 = null;
+let value = { "hour":0, "hourDiff":0, "hourLast":0,"day":0, "dayDiff":0, "dayLast":0, "week":0, "weekdiff":0, "weekLast":0, "month":0, "monthDiff":0, "monthLast":0 }
 
 
-function maxDayOfYear(maxDays) {
-	const oneJan = new Date(today.getFullYear(), 0, 1);
-	const lastDec = new Date(today.getFullYear(), 11, 31);
-	// @ts-ignore
-	maxDays = Math.round((lastDec -  oneJan) / (24*60*60*1000));
-	return maxDays;
-}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function maxWeekOfYear(maxWeeks) {
-	var oneJan = new Date(today.getFullYear(),0,1);
-	var lastDec = new Date(today.getFullYear(),11,31);
-	if (oneJan.getDay() === 4 || lastDec.getDay() === 4) {
-		maxWeeks = 53;
-	} else {
-		maxWeeks = 52;
-	}
-	return maxWeeks;
-}
-
-function dayPerMonth() {
-	var months = new Array();
-	var i = today.getFullYear();
-		if(i%4 == 0 && (i%100 != 0 || i%400 == 0)){ //Schaltjahr wenn jahr durch 4, nicht aber durch 100 ausser durch 400
-			months[i] = {0:31,1:29,2:31,3:30,4:31,5:30,6:31,7:31,8:30,9:31,10:30,11:31};
-		} else{ //kein Schaltjahr
-			months[i] = {0:31,1:28,2:31,3:30,4:31,5:30,6:31,7:31,8:30,9:31,10:30,11:31};
-		}
-	return months
-}
+// +++++++++++++++++++ Start for Adapter ++++++++++++++++++++
 
 function startAdapter(options) {
 	options = options || {};
+	
 	Object.assign(options, {
 		name: adapterName,
 	});
-	adapter = new utils.Adapter(options);
 
-	settingsID = adapter.config;
+	adapter = new utils.Adapter(options);
+	adapter.instance = 0;
+	
+	instAdapter = `${adapter.name}.${adapter.instance}`;
+
+
+	// settingsID = adapter.config;
 
 
 	// start here!
@@ -80,6 +61,7 @@ function startAdapter(options) {
             clearTimeout(timerSleep);
             callback();
         } catch (e) {
+            // @ts-ignore
             callback(e);
         }
     });
@@ -100,14 +82,72 @@ function startAdapter(options) {
 	//return settingsID;
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ calc of maximum Days of the actual Year for Adapter ++++++++++++++++++++
+
+
+function maxDayOfYear(settingsID, maxDays) {
+	const oneJan = new Date(settingsID.today.getFullYear(), 0, 1);
+	const lastDec = new Date(settingsID.today.getFullYear(), 11, 31);
+	// @ts-ignore
+	maxDays = Math.round((lastDec -  oneJan) / (24*60*60*1000));
+	return maxDays;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ calc of maximum Week of the actual Year for Adapter ++++++++++++++++++++
+
+function maxWeekOfYear(settingsID) {
+	var oneJan = new Date(settingsID.today.getFullYear(),0,1);
+	var lastDec = new Date(settingsID.today.getFullYear(),11,31);
+	if (oneJan.getDay() === 4 || lastDec.getDay() === 4) {
+		maxWeeks = 53;
+	} else {
+		maxWeeks = 52;
+	}
+	return maxWeeks;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ calc of aktual Week of the actual Year for Adapter ++++++++++++++++++++
+
+function aktualWeekOfYear(settingsID) {
+	var currentThursday = new Date(settingsID.today.getTime() +(3-((settingsID.today.getDay()+6) % 7)) * 86400000);
+	var yearOfThursday = currentThursday.getFullYear();
+	var firstThursday = new Date(new Date(yearOfThursday,0,4).getTime() +(3-((new Date(yearOfThursday,0,4).getDay()+6) % 7)) * 86400000);
+	// @ts-ignore
+	var acktualWeek = Math.floor(1 + 0.5 + (currentThursday.getTime() - firstThursday.getTime()) / 86400000/7);
+	return acktualWeek;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ calc the Day per Month and is a the Feb 28 day or 29 day of actual Year for Adapter ++++++++++++++++++++
+
+function dayPerMonth(settingsID) {
+	var months = new Array();
+	var i = settingsID.today.getFullYear();
+		if(i%4 == 0 && (i%100 != 0 || i%400 == 0)){ //Schaltjahr wenn jahr durch 4, nicht aber durch 100 ausser durch 400
+			months[i] = {0:31,1:29,2:31,3:30,4:31,5:30,6:31,7:31,8:30,9:31,10:30,11:31};
+		} else{ //kein Schaltjahr
+			months[i] = {0:31,1:28,2:31,3:30,4:31,5:30,6:31,7:31,8:30,9:31,10:30,11:31};
+		}
+	return months
+}
+
+/**
+// @ts-ignore
 const calc = schedule.scheduleJob('calcTimer', '58 * * * * *', async function () {
 	if (settingsID.triggerID > "" && settingsID.medium > "" ){
-		getValue(settingsID);
+		//getValue(settingsID);
 
 	}else {
 		adapter.log.error("Keine referens Objekt-ID oder Medium angegeben")
 	}
-})
+})*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -124,16 +164,35 @@ async function sleep(ms) {
 
 // +++++++++++++++++++ get Value from other Adapter ++++++++++++++++++++
 
-async function getValue(settingsID){
+
+function getValue(settingsID){
 	adapter.getForeignState(settingsID.triggerID, (err, state) => {
 		// state can be null!
 		if (state) {
-			adapter.setState(settingsID.medium + ".instanceValue",{ val: state.val, ack: true })
-			
+			adapter.setState(settingsID.path.instanceValue,{ val: state.val, ack: true })
+			settingsID.value.instanceValue = state.val;
 		} else{
 			adapter.log.info(err)
 		}
 	});
+}
+
+ /**
+ * @param {{ today: Date; date: { seconds: number; minutes: number; hours: number; day: number; month: number; year: number; }; }} settingsID
+ */
+ function getDateOfInstanc(settingsID) {
+	
+	settingsID.today = new Date();
+	settingsID.date.seconds = new Date().getSeconds();
+	settingsID.date.minutes = new Date().getMinutes();
+	settingsID.date.hours = new Date().getHours();
+	// @ts-ignore
+	settingsID.date.date = new Date().getDate();
+	settingsID.date.day = ((settingsID.today.getDay() +6)%7); 
+	settingsID.date.month = new Date().getMonth();
+	settingsID.date.year = new Date().getFullYear();
+
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,8 +203,43 @@ function main(adapter) {
 
 	settingsID = adapter.config;
 
+	// Date definition
+	settingsID.date = {seconds:0, minutes:0, hours:0, date:0, day:0, month:0, year:0 };
+	settingsID.today;
+	
+	// @ts-ignore
+	getDateOfInstanc(settingsID);
 
-	adapter.log.info(maxWeek + " " + maxDay + " " + months[year][1] + " Tag: "+ day[((today.getDay() +6)%7)] + " den: " + today.getDate() + " Monat: " + month + " Jahr: " + year + " Stunde: " + hours + " Minute: " + minutes);
+	// Path definition
+	settingsID.path = {};
+	settingsID.path.instanceValue = `${settingsID.medium}.instanceValue`;
+	if (settingsID.day === false){
+		settingsID.path.calcDayLastValue = `${settingsID.medium}.calc.dayLastValue`;
+		settingsID.path.calcDayDiffValue = `${settingsID.medium}.calc.dayDiffValue`;
+	} else {
+		settingsID.path.calcDayLastValue = `${settingsID.medium}.${settingsID.date.year}.calc.dayLastValue`;
+		settingsID.path.calcDayDiffValue = `${settingsID.medium}.${settingsID.date.year}.calc.dayDiffValue`;
+	}
+	settingsID.path.calcWeekLastValue = `${settingsID.medium}.${settingsID.date.year}.calc.weekLastValue`;
+	settingsID.path.calcWeekDiffValue = `${settingsID.medium}.${settingsID.date.year}.calc.weekDiffValue`;
+	settingsID.path.calcMonthLastValue = `${settingsID.medium}.${settingsID.date.year}.calc.monthLastValue`;
+	settingsID.path.calcMonthDiffValue = `${settingsID.medium}.${settingsID.date.year}.calc.monthDiffValue`;
+	settingsID.path.day = `${settingsID.medium}.${settingsID.date.year}.day.` ;
+	settingsID.path.week = `${settingsID.medium}.${settingsID.date.year}.week.`;
+	settingsID.path.month = `${settingsID.medium}.${settingsID.date.year}.month.`;
+	settingsID.path.year = `${settingsID.medium}.${settingsID.date.year}`;
+
+	// Value definition
+	settingsID.value = {day:0, calcDayLastValue:0, calcDayDiffValue:0, instanceValue:0, week:0, calcWeekLastValue:0, calcWeekDiffValue:0};
+
+
+
+	maxDay = maxDayOfYear(settingsID);
+	maxWeeks = maxWeekOfYear(settingsID);
+	acktualWeek = aktualWeekOfYear(settingsID);
+	months = dayPerMonth(settingsID);
+
+	adapter.log.debug("Ach dem Init" + acktualWeek + " / " + maxWeeks + " / " + maxDay + " / " + months[settingsID.date.year][1] + " Tag: "+ day[((settingsID.today.getDay() +6)%7)] + " den: " + settingsID.today.getDate() + " Monat: " + settingsID.date.month + " Jahr: " + settingsID.date.year + " Stunde: " + settingsID.date.hours + " Minute: " + settingsID.date.minutes);
 	
 	// +++++++++++++++++++ basic framework of Adapter ++++++++++++++++++++
 
@@ -183,7 +277,7 @@ function main(adapter) {
 			common: {
 				name: "instanceValue_" + settingsID.medium,
 				type: "number",
-				role: "state",
+				role: "value",
 				read: true,
 				write: true,
 				def: 0,
@@ -196,12 +290,12 @@ function main(adapter) {
 
 		if ( settingsID.day === false ) {
 
-			adapter.setObjectNotExistsAsync(settingsID.medium + ".calc.dayLastValue", {
+			adapter.setObjectNotExistsAsync(settingsID.path.calcDayLastValue, {
 				type: "state",
 				common: {
 					name: "calc_dayLastValue_" + settingsID.medium,
 					type: "number",
-					role: "state",
+					role: "value",
 					read: true,
 					write: true,
 					def: 0,
@@ -210,12 +304,12 @@ function main(adapter) {
 				native: {},
 			});
 
-			adapter.setObjectNotExistsAsync(settingsID.medium + ".calc.dayDiffValue", {
+			adapter.setObjectNotExistsAsync(settingsID.path.calcDayDiffValue, {
 				type: "state",
 				common: {
 					name: "alc_dayDiffValue_" + settingsID.medium,
 					type: "number",
-					role: "state",
+					role: "value",
 					read: true,
 					write: true,
 					def: 0,
@@ -223,7 +317,7 @@ function main(adapter) {
 				},
 				native: {},
 			});
-		} else {
+		} /**else {
 			adapter.delObject(settingsID.medium + ".calc.dayLastValue", function (err) {
                 if (err) {
                     adapter.log.warn(err);
@@ -234,18 +328,18 @@ function main(adapter) {
                     adapter.log.warn(err);
                 }
             });
-		}
+		}*/
 
-		// +++++++++++++++++++ basic framework with Day selected of Adapter ++++++++++++++++++++
+		// +++++++++++++++++++ basic framework with Day withot Month selected of Adapter ++++++++++++++++++++
 
 		if ( settingsID.day === true && settingsID.month === false ){
 			
-			adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".calc.dayLastValue", {
+			adapter.setObjectNotExistsAsync(settingsID.path.calcDayLastValue, {
 				type: "state",
 				common: {
 					name: "calc_dayLastValue_" + settingsID.medium,
 					type: "number",
-					role: "state",
+					role: "value",
 					read: true,
 					write: true,
 					def: 0,
@@ -253,12 +347,12 @@ function main(adapter) {
 				},
 				native: {},
 			});
-			adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".calc.dayDiffValue", {
+			adapter.setObjectNotExistsAsync(settingsID.path.calcDayDiffValue, {
 				type: "state",
 				common: {
 					name: "calc_dayDiffValue_" + settingsID.medium,
 					type: "number",
-					role: "state",
+					role: "value",
 					read: true,
 					write: true,
 					def: 0,
@@ -269,7 +363,7 @@ function main(adapter) {
 			
 			for ( var i = 1; i <= maxDay; i++)  {
 	
-				adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".day." + i + ".dayValue", {
+				adapter.setObjectNotExistsAsync(`${settingsID.path.day + i}.dayValue`, {
 					type: "state",
 					common: {
 						name: "lastValue_" + settingsID.medium,
@@ -285,7 +379,7 @@ function main(adapter) {
 
 			};
 
-		} else {
+		} /**else {
 			adapter.delObject(settingsID.medium + "." + year + ".calc.dayLastValue", function (err) {
                 if (err) {
                     adapter.log.warn(err);
@@ -304,18 +398,18 @@ function main(adapter) {
 					}
 				});
 			};
-		}
+		}*/
 
 		// +++++++++++++++++++ basic framework with Week selected of Adapter ++++++++++++++++++++
 
 		if ( settingsID.week === true ){
 			
-			adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".calc.weekLastValue", {
+			adapter.setObjectNotExistsAsync(settingsID.path.calcDayLastValue, {
 				type: "state",
 				common: {
-					name: "calc_weekLastValue_" + settingsID.medium,
+					name: "calc_dayLastValue_" + settingsID.medium,
 					type: "number",
-					role: "state",
+					role: "value",
 					read: true,
 					write: true,
 					def: 0,
@@ -323,12 +417,38 @@ function main(adapter) {
 				},
 				native: {},
 			});
-			adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".calc.weekDiffValue", {
+			adapter.setObjectNotExistsAsync(settingsID.path.calcDayDiffValue, {
+				type: "state",
+				common: {
+					name: "calc_dayDiffValue_" + settingsID.medium,
+					type: "number",
+					role: "value",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+			adapter.setObjectNotExistsAsync(settingsID.path.calcWeekLastValue, {
+				type: "state",
+				common: {
+					name: "calc_weekLastValue_" + settingsID.medium,
+					type: "number",
+					role: "value",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+			adapter.setObjectNotExistsAsync(settingsID.path.calcWeekDiffValue, {
 				type: "state",
 				common: {
 					name: "calc_weekDiffValue_" + settingsID.medium,
 					type: "number",
-					role: "state",
+					role: "value",
 					read: true,
 					write: true,
 					def: 0,
@@ -337,14 +457,27 @@ function main(adapter) {
 				native: {},
 			});
 			
-			for ( var i = 1; i <= maxWeek; i++)  {
+			for ( var i = 1; i <= maxWeeks; i++)  {
+				adapter.setObjectNotExistsAsync(`${settingsID.path.week + i}.weekValue`, {
+					type: "state",
+					common: {
+						name: "lastValue_" + settingsID.medium,
+						type: "number",
+						role: "value",
+						read: true,
+						write: true,
+						def: 0,
+						unit: "",
+					},
+					native: {},
+				});
 				for (var d =1; d <= 7; d++) {
-					adapter.setObjectNotExistsAsync(settingsID.medium + "." + year + ".week." + i + "." + d + ".dayValue", {
+					adapter.setObjectNotExistsAsync(`${settingsID.path.week + i}.${d}.dayValue`, {
 						type: "state",
 						common: {
 							name: "lastValue_" + settingsID.medium,
 							type: "number",
-							role: "state",
+							role: "value",
 							read: true,
 							write: true,
 							def: 0,
@@ -356,7 +489,7 @@ function main(adapter) {
 
 			};
 
-		} else {
+		} /** else {
 			adapter.delObject(settingsID.medium + "." + year + ".calc.weekLastValue", function (err) {
                 if (err) {
                     adapter.log.warn(err);
@@ -369,6 +502,11 @@ function main(adapter) {
             });
 
 			for ( var i = 1; i <= maxDay; i++)  { 
+				adapter.delObject(settingsID.medium + "." + year + ".week." + i +".weekValue", function (err) {
+					if (err) {
+						adapter.log.warn(err);
+					}
+				});
 				
 				for (var d =1; d <= 7; d++) {
 					adapter.delObject(settingsID.medium + "." + year + ".week." + i + "." + d + ".dayValue", function (err) {
@@ -378,245 +516,400 @@ function main(adapter) {
 					});
 				};
 			};
-		}
+		}*/
 
+		// +++++++++++++++++++ basic framework with Day with Month selected of Adapter ++++++++++++++++++++
+
+
+		if ( settingsID.day === true && settingsID.month === true ){
+			
+			adapter.setObjectNotExistsAsync(settingsID.path.calcDayLastValue, {
+				type: "state",
+				common: {
+					name: "calc_dayLastValue_" + settingsID.medium,
+					type: "number",
+					role: "value",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+			adapter.setObjectNotExistsAsync(settingsID.path.calcDayDiffValue, {
+				type: "state",
+				common: {
+					name: "calc_dayDiffValue_" + settingsID.medium,
+					type: "number",
+					role: "value",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+			adapter.setObjectNotExistsAsync(settingsID.path.calcMonthLastValue, {
+				type: "state",
+				common: {
+					name: "calc_monthLastValue_" + settingsID.medium,
+					type: "number",
+					role: "value",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+			adapter.setObjectNotExistsAsync(settingsID.path.calcMonthDiffValue, {
+				type: "state",
+				common: {
+					name: "calc_monthDiffValue_" + settingsID.medium,
+					type: "number",
+					role: "value",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+	
+			for ( var i = 0; i <= 12; i++)  {
+				var m= i+1;
+				adapter.setObjectNotExistsAsync(`${settingsID.path.month + m}.monthValue`, {
+					type: "state",
+					common: {
+						name: "lastValue_" + settingsID.medium,
+						type: "number",
+						role: "value",
+						read: true,
+						write: true,
+						def: 0,
+						unit: "",
+					},
+					native: {},
+				});
+				for ( var d =1; d <= months[settingsID.date.year][i]; d++){
+					adapter.setObjectNotExistsAsync(`${settingsID.path.month + m}.${d}.dayValue`, {
+						type: "state",
+						common: {
+							name: "lastValue_" + settingsID.medium,
+							type: "number",
+							role: "value",
+							read: true,
+							write: true,
+							def: 0,
+							unit: "",
+						},
+						native: {},
+					});
+
+				};
+			};
+
+		} /** else {
+			adapter.delObject(settingsID.medium + "." + year + ".calc.dayLastValue", function (err) {
+				if (err) {
+					adapter.log.warn(err);
+				}
+			});
+			adapter.delObject(settingsID.medium + "." + year + ".calc.dayDiffValue", function (err) {
+				if (err) {
+					adapter.log.warn(err);
+				}
+			});
+			adapter.delObject(settingsID.medium + "." + year + ".calc.monthLastValue", function (err) {
+				if (err) {
+					adapter.log.warn(err);
+				}
+			});
+			adapter.delObject(settingsID.medium + "." + year + ".calc.monthDiffValue", function (err) {
+				if (err) {
+					adapter.log.warn(err);
+				}
+			});
+
+			for ( var i = 1; i <= 12; i++)  {
+				adapter.delObject(settingsID.medium + "." + year + ".month." + i +".monthValue", function (err) {
+					if (err) {
+						adapter.log.warn(err);
+					}
+				});
+				for ( var d =1; d <= months[year][i]; d++) { 
+					adapter.delObject(settingsID.medium + "." + year + ".month." + i + "." + d + ".dayValue", function (err) {
+						if (err) {
+							adapter.log.warn(err);
+						}
+					});
+				};
+			};
+		}*/
+
+		if (settingsID.year === true) {
+			
+			adapter.setObjectNotExistsAsync(settingsID.medium + "." + settingsID.date.year + ".yearValue", {
+				type: "state",
+				common: {
+					name: "yearValue_" + settingsID.medium,
+					type: "number",
+					role: "value",
+					read: true,
+					write: true,
+					def: 0,
+					unit: "",
+				},
+				native: {},
+			});
+		}
 
 		adapter.subscribeStates("*");
 
-		getValue(settingsID);
+		//getValue(settingsID);
 		
+
 	} else {
 		adapter.log.error("Keine referens Objekt-ID oder Medium angegeben")
 	}
+
+	initState(settingsID)
+
+	adapter.log.debug(`Nach dem Init der Value ${settingsID.value.calcDayDiffValue} ${settingsID.value.calcDayLastValue} ${settingsID.value.calcWeekDiffValue} ${settingsID.value.calcWeekLastValue} ${settingsID.value.instanceValue}`);
 	
 	if (adapter.connected) {
 		adapter.setStateAsync("alive", { val: true, ack: true });
+		pollingDate(true, settingsID);
+		pollingData(true, settingsID);
 	} else {
+		pollingDate(false);
+		pollingData(false);
 		adapter.log.error("Instance not startet");
 	}
+
+	return adapter
 };
 
-// Load your modules here, e.g.:
-// const fs = require("fs"); hallo
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Verbrauchszaehler extends utils.Adapter {
+// +++++++++++++++++++ Interval 1s for Date of Adapter ++++++++++++++++++++
 
-	/**
-	 * @param {Partial<utils.AdapterOptions>} [options={}]
-	 */
-	constructor(options) {
-		super({
-			...options,
-			name: "verbrauchszaehler",
-		});
-		this.on("ready", this.onReady.bind(this));
-		this.on("stateChange", this.onStateChange.bind(this));
-		// this.on("objectChange", this.onObjectChange.bind(this));
-		// this.on("message", this.onMessage.bind(this));
-		this.on("unload", this.onUnload.bind(this));
-	}
+async function pollingDate(cmd, settingsID) {
+	// start cyclical status request
+	if (poll2 != null) {
+		clearInterval(poll2);
+		poll2 = null;
+	};
+
+	if (cmd) {
+		poll2 = setInterval(() => {
+			getDateOfInstanc(settingsID)
+			calcDayValue(settingsID)
+		}, 2000);
+	};
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ Interval 10s of Adapter ++++++++++++++++++++
+
+async function pollingData(cmd, settingsID) {
+	// start cyclical status request
+	if (poll != null) {
+		clearInterval(poll);
+		poll = null;
+	};
+
+	if (cmd) {
+		poll = setInterval(() => {
+			getValue(settingsID)
+		}, 10000);
+	};
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ calc for day Value of Adapter ++++++++++++++++++++ /** settingsID.date.hours === 23 && settingsID.date.minutes ==59 &&*/ 
+
+function calcDayValue(settingsID) {
 	
-	
+	var m = settingsID.date.month + 1; 
+	var d = settingsID.date.day + 1;
+
+	if ( settingsID.date.seconds > 50 && settingsID.date.seconds <55 ) {
 		
-	
-	
-	/**
-	 * Is called when databases are connected and adapter received configuration.
-	 */
-	async onReady() {
+		// ******************** calculation days for the month statistic ***************************
 
+		if (settingsID.day) {
+			
+			adapter.getForeignState(`${instAdapter}.${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, (err, state) => {
+				if (state) {
+					settingsID.value.day = state.val;	
+				} else{
+					adapter.log.error(err)
+				}
+			});
+			adapter.getForeignState(`${instAdapter}.${settingsID.path.calcDayLastValue}`, (err, state1) => {
+				if (state1) {
+					settingsID.value.calcDayLastValue = state1.val;	
+				} else{
+					adapter.log.error(err)
+				}
+			});
+			adapter.getForeignState(`${instAdapter}.${settingsID.path.calcDayDiffValue}`, (err, state3) => {
+				if (state3) {
+					settingsID.value.calcDayDiffValue = state3.val;	
+				} else{
+					adapter.log.error(err)
+				}
+			});
+				
+			if (parseFloat(settingsID.value.day)===0){
+				var a = parseFloat(`${settingsID.value.calcDayLastValue}`);
+				var b = parseFloat(`${settingsID.value.instanceValue}`);
+				if ( a !== b ) {
+					settingsID.value.calcDayDiffValue = diff(parseFloat(settingsID.value.instanceValue), parseFloat(settingsID.value.calcDayLastValue));
+					adapter.setStateAsync(`${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
+					adapter.setStateAsync(`${settingsID.path.calcDayDiffValue}`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
+					adapter.setStateAsync(`${settingsID.path.calcDayLastValue}`, { val: parseFloat(`${settingsID.value.instanceValue}`), ack: true } )
+					settingsID.value.calcDayLastValue = parseFloat(settingsID.value.instanceValue);
+				}
+			} else {
+				adapter.log.debug(`Berechnung fertig: für den ${settingsID.date.date}.${m}.${settingsID.date.year} ergab ein Wert von ${settingsID.value.day}!`);
+			}
 		
+			// ******************** calculation days for the week statistic ***************************
 
-		// Als erstes wird geschaut welche Settings aktiv sin oder nicht
+			if (settingsID.week) {
 
-		this.setObjectNotExistsAsync("alive", {
-			type: "state",
-			common: {
-				name: "connect",
-				type: "boolean",
-				role: "state",
-				read: true,
-				write: true,
-				def: false,
-			},
-			native: {},
-		});
-		this.setObjectNotExistsAsync(settingsID.medium + ".connect", {
-			type: "state",
-			common: {
-				name: "connect",
-				type: "boolean",
-				role: "state",
-				read: true,
-				write: true,
-				def: false,
-			},
-			native: {},
-		});
-		this.setObjectNotExistsAsync(settingsID.medium + ".instanceValue", {
-			type: "state",
-			common: {
-				name: "instanceValue" + settingsID.medium,
-				type: "number",
-				role: "state",
-				read: true,
-				write: true,
-				def: 0,
-				unit: "",
-			},
-			native: {},
-		});
-		
+				adapter.getForeignState(`${instAdapter}.${settingsID.path.week}${acktualWeek}.${d}.dayValue`, (err, state4) => {
+					if (state4) {
+						settingsID.value.week = state4.val;	
+					} else{
+						adapter.log.error(err)
+					}
+				});
+				adapter.getForeignState(`${instAdapter}.${settingsID.path.calcWeekLastValue}`, (err, state5) => {
+					if (state5) {
+						settingsID.value.calcWeekLastValue = state5.val;	
+					} else{
+						adapter.log.error(err)
+					}
+				});
+				adapter.getForeignState(`${instAdapter}.${settingsID.path.calcWeekDiffValue}`, (err, state6) => {
+					if (state6) {
+						settingsID.value.calcWeekDiffValue = state6.val;	
+					} else{
+						adapter.log.error(err)
+					}
+				});
 
-		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		this.subscribeStates("*");
-		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-		// this.subscribeStates("lights.*");
-		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-		// this.subscribeStates("*");
+				if (parseFloat(settingsID.value.week)===0){
+					adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.${d}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
+					settingsID.value.week = parseFloat(`${settingsID.value.calcDayDiffValue}`);
+					if ( d === 1 ) {
+						settingsID.value.calcWeekDiffValue = add( 0 , parseFloat(settingsID.value.week) )
+					} else {
+						settingsID.value.calcWeekDiffValue = add( parseFloat(settingsID.value.calcWeekLastValue) , parseFloat(settingsID.value.week) )
+					}
+					adapter.setStateAsync(`${settingsID.path.calcWeekDiffValue}`, { val: parseFloat(`${settingsID.value.calcWeekDiffValue}`), ack: true } )
+					adapter.setStateAsync(`${settingsID.path.calcWeekLastValue}`, { val: parseFloat(`${settingsID.value.calcWeekDiffValue}`), ack: true } )
+					adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.weekValue`, { val: parseFloat(`${settingsID.value.calcWeekDiffValue}`), ack: true } )
+				} else {
+					adapter.log.debug(`Berechnung fertig: für die KW ${acktualWeek} Tag ${d} ergab den Wert von ${settingsID.value.week}!`);
+				}
+			}
 
-		/*
-			setState examples
-			you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-		*/
-		// the variable testVariable is set to true as command (ack=false)
-		//await this.setStateAsync("testVariable", true);
-
-		// same thing, but the value is flagged "ack"
-		// ack should be always set to true if the value is received from or acknowledged from the target system
-		//await this.setStateAsync("testVariable", { val: true, ack: true });
-
-		// same thing, but the state is deleted after 30s (getState will return null afterwards)
-		//await this.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
-
-		// examples for the checkPassword/checkGroup functions
-		//let result = await this.checkPasswordAsync("admin", "iobroker");
-		//this.log.info("check user admin pw iobroker: " + result);
-
-		//result = await this.checkGroupAsync("admin", "admin");
-		//this.log.info("check group user admin group admin: " + result);
-
-		
-		//var value = Object;
-		//this.getStatesOf(triggerID, value.val ) 
-		//	this.log.info(triggerID + " = " + value.vel);
-		//this.setState(medium + ".instanceValue", (value), true);
-		
-		this.getValue(settingsID);
-		if (this.connected) {
-			this.setStateAsync("alive", { val: true, ack: true });
 		} else {
-			this.log.error("Instance not startet");
+			adapter.log.debug("SettingID.day funktioniert nicht!");
 		}
+		
+	} else {
+		adapter.log.debug("seconds = " + settingsID.date.seconds);
 	}
-
-
-	
-
-	getValue(settingsID){
-        this.getForeignState(settingsID.triggerID, (err, state) => {
-            // state can be null!
-            if (state) {
-				this.setState(settingsID.medium + ".instanceValue",{ val: state.val, ack: true })
-				sleep(5000)
-            }
-        });
-
-		//var instanceValue = (this.config.medium + ".instanceValue");
-
-		//this.log.info("Aufruf funktioniert = " + instanceValue);
-
-		//this.setState(instanceValue,{val: 200, ack: true});
-	}
-
-	/**
-	 * Is called when adapter shuts down - callback has to be called under any circumstances!
-	 * @param {() => void} callback
-	 */
-	onUnload(callback) {
-		try {
-			// Here you must clear all timeouts or intervals that may still be active
-			// clearTimeout(timeout1);
-			// clearTimeout(timeout2);
-			// ...
-			// clearInterval(interval1);
-			this.setStateAsync("alive", { val: false, ack: true });
-            clearTimeout(timerSleep);
-
-
-			callback();
-		} catch (e) {
-			callback();
-		}
-	}
-
-	// If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
-	// You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
-	// /**
-	//  * Is called if a subscribed object changes
-	//  * @param {string} id
-	//  * @param {ioBroker.Object | null | undefined} obj
-	//  */
-	// onObjectChange(id, obj) {
-	// 	if (obj) {
-	// 		// The object was changed
-	// 		this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
-	// 	} else {
-	// 		// The object was deleted
-	// 		this.log.info(`object ${id} deleted`);
-	// 	}
-	// }
-
-	/**
-	 * Is called if a subscribed state changes
-	 * @param {string} id
-	 * @param {ioBroker.State | null | undefined} state
-	 */
-	onStateChange(id, state) {
-		if (state) {
-			// The state was changed
-			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-			this.getValue(settingsID)
-		} else {
-			// The state was deleted
-			this.log.info(`state ${id} deleted`);
-		}
-	}
-
-	// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-	// /**
-	//  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-	//  * Using this method requires "common.messagebox" property to be set to true in io-package.json
-	//  * @param {ioBroker.Message} obj
-	//  */
-	// onMessage(obj) {
-	// 	if (typeof obj === "object" && obj.message) {
-	// 		if (obj.command === "send") {
-	// 			// e.g. send email or pushover or whatever
-	// 			this.log.info("send command");
-
-	// 			// Send response in callback if required
-	// 			if (obj.callback) this.sendTo(obj.from, obj.command, "Message received", obj.callback);
-	// 		}
-	// 	}
-	// }
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// +++++++++++++++++++ calc and add of Adapter ++++++++++++++++++++
 
+function diff(a, b) {
+	return Math.abs(a - b);
+}
 
-//if (require.main !== module) {
-	// Export the constructor in compact mode
-	/**
-	 * @param {Partial<utils.AdapterOptions>} [options={}]
-	 */
-//	module.exports = (options) => new Verbrauchszaehler(options);
-//} else {
-	// otherwise start the instance directly
-//	new Verbrauchszaehler();
-//}
+function add(a, b) {
+	return Math.abs(a + b);
+}
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ Init State wich nesecery for startup of Adapter ++++++++++++++++++++
+
+function initState(settingsID){
+
+	var m = settingsID.date.month + 1; 
+	var d = settingsID.date.day + 1;
+
+	adapter.getForeignState(`${instAdapter}.${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, (err, state) => {
+		if (state) {
+			settingsID.value.day = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	adapter.getForeignState(`${instAdapter}.${settingsID.path.calcDayDiffValue}`, (err, state) => {
+		if (state) {
+			settingsID.value.calcDayDiffValue = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	adapter.getForeignState(`${instAdapter}.${settingsID.path.calcDayLastValue}`, (err, state1) => {
+		if (state1) {
+			settingsID.value.calcDayLastValue = state1.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	adapter.getForeignState(`${instAdapter}.${settingsID.path.week}${acktualWeek}.${d}.dayValue`, (err, state4) => {
+		if (state4) {
+			settingsID.value.week = state4.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	adapter.getForeignState(`${instAdapter}.${settingsID.path.calcWeekDiffValue}`, (err, state2) => {
+		if (state2) {
+			settingsID.value.calcWeekDiffValue = state2.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	adapter.getForeignState(`${instAdapter}.${settingsID.path.calcWeekLastValue}`, (err, state3) => {
+		if (state3) {
+			settingsID.value.calcWeekLastValue = state3.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	adapter.getForeignState(settingsID.triggerID, (err, state4) => {
+		// state can be null!
+		if (state4) {
+			settingsID.value.instanceValue = state4.val;
+		} else{
+			adapter.log.info(err)
+		}
+	});
+
+	return settingsID
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ End of Adapter ++++++++++++++++++++
+
+// @ts-ignore
 if (module && module.parent) {
 	module.exports = startAdapter;
 } else {
