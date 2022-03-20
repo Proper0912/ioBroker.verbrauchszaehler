@@ -26,7 +26,7 @@ Your total consumption from the start of the adapter.
 * (proper0912) add a widget for displaying statistics
 
 ## Changelog
-npm audit
+
 <!--
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
