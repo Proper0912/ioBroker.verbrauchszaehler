@@ -1,19 +1,19 @@
 {
   "common": {
     "name": "verbrauchszaehler",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "news": {
-      "0.0.1": {
-        "en": "initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Начальная версия",
-        "pt": "lançamento inicial",
-        "nl": "Eerste uitgave",
-        "fr": "Première version",
-        "it": "Versione iniziale",
-        "es": "Versión inicial",
-        "pl": "Pierwsze wydanie",
-        "zh-cn": "首次出版"
+      "0.0.3": {
+        "en": "Add annual consumption",
+        "de": "Jahresverbrauch hinzurechnen",
+        "ru": "Добавьте годовое потребление",
+        "pt": "Adicionar consumo anual",
+        "nl": "Jaarverbruik toevoegen",
+        "fr": "Ajouter la consommation annuelle",
+        "it": "Aggiungi il consumo annuo",
+        "es": "Añadir consumo anual",
+        "pl": "Dodaj roczne zużycie",
+        "zh-cn": "增加年消費"
       },
       "0.0.2": {
         "en": "basic calculations",
@@ -26,32 +26,43 @@
         "es": "calculos basicos",
         "pl": "podstawowe obliczenia",
         "zh-cn": "基本計算"
+      },
+      "0.0.1": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "zh-cn": "首次出版"
       }
     },
-    "title": "Verbrauchzähler",
     "titleLang": {
-      "en": "Verbrauchzähler",
+      "en": "consumption meter",
       "de": "Verbrauchszähler",
-      "ru": "Verbrauchzähler",
-      "pt": "Verbrauchzähler",
-      "nl": "Verbrauchzähler",
-      "fr": "Verbrauchzähler",
-      "it": "Verbrauchzähler",
-      "es": "Verbrauchzähler",
-      "pl": "Verbrauchzähler",
-      "zh-cn": "Verbrauchzähler"
+      "ru": "расходомер",
+      "pt": "medidor de consumo",
+      "nl": "verbruiksmeter",
+      "fr": "compteur de consommation",
+      "it": "contatore dei consumi",
+      "es": "medidor de consumo",
+      "pl": "licznik zużycia",
+      "zh-cn": "消耗計"
     },
     "desc": {
-      "en": "Verbrauchzähler für Öl und Wasser",
+      "en": "Consumption meters for oil and water",
       "de": "Verbrauchszähler für Öl und Wasser",
-      "ru": "Verbrauchzähler für Öl und Wasser",
-      "pt": "Verbrauchzähler für Öl und Wasser",
-      "nl": "Verbrauchzähler für l und Wasser",
-      "fr": "Verbrauchzähler für Öl und Wasser",
-      "it": "Verbrauchzähler für Öl und Wasser",
-      "es": "Verbrauchzähler für Öl und Wasser",
-      "pl": "Verbrauchzähler für Öl und Wasser",
-      "zh-cn": "Verbrauchzähler für Öl und Wasser"
+      "ru": "Счетчики расхода масла и воды",
+      "pt": "Medidores de consumo de óleo e água",
+      "nl": "Verbruiksmeters voor olie en water",
+      "fr": "Compteurs de consommation d'huile et d'eau",
+      "it": "Contatori di consumo per olio e acqua",
+      "es": "Contadores de consumo de aceite y agua",
+      "pl": "Liczniki zużycia oleju i wody",
+      "zh-cn": "油和水的消耗量表"
     },
     "authors": [
       "Florian Peter <peter_florian@gmx.de>"

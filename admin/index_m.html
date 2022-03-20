@@ -51,10 +51,10 @@
 
 				<div class="col s12">
 					<ul class="tabs" id="infoTabs">
-						<li class="tab col s2"><a href="#tabView" class="translate active">Main settings</a></li>
-						<!--<li class="tab col s2"><a href="#tabDoc" class="translate">Documentation</a></li>-->
-						<!--<li class="tab col s2"><a href="#tabGithub" class="translate">Github</a></li>-->
-						<!--<li class="tab col s2"><a href="#tabSystem" class="translate">System</a></li>-->
+						<li class="tab col s3"><a href="#tabView" class="translate active">Main settings</a></li>
+						<!--<li class="tab col s3"><a href="#tabDoc" class="translate">Documentation</a></li>-->
+						<!--<li class="tab col s3"><a href="#tabGithub" class="translate">Github</a></li>-->
+						<!--<li class="tab col s3"><a href="#tabSystem" class="translate">System</a></li>-->
 					</ul>
 				</div>
 
@@ -70,8 +70,8 @@
 					<div class="row">
 						<div class="col s6 l4 input-field">
 							<input type="text" class="value" id="triggerID" />
-							<label for="triggerID" class="translate">Objekt-ID:</label>
-							<span class="translate"></span>
+							<!--<label for="triggerID" class="translate">Objekt-ID:</label> -->
+							<span class="translate">Objekt-ID:</span>
 						</div>
 						<div class="col s1 m2 l1">
 							<a id="triggerIDPopUp" class="btn-floating waves-effect waves-light blue table-button-add trigger-add"><i class="material-icons">add</i></a>
@@ -79,18 +79,19 @@
 					</div>
 
 					<div class="row">
-						<div class="input-field col m8">
+						<div class="col s6 l4 input-field">
 							<select class="value" id="medium">
 								<option class="translate" value="" disabled selected>Select the medium</option>
 								<option class="translate" value="oil">Oil</option>
 								<option class="translate" value="water">Water</option>
 							</select>
-							<label class="translate">Medium</label>
+							<!--<label class="translate">Medium</label> -->
+							<span class="translate">Medium</span>
 						</div>
 					</div>
 
 					<div class="row">
-						<div class="input-field col m4 l3">
+						<div class="col m2 l1">
 							<input class="value" id="day" type="checkbox" />
 							<label for="day" class="translate">Day</label>
 							<span class="translate"></span>
@@ -98,7 +99,7 @@
 					</div>
 					
 					<div class="row">
-						<div class="input-field col m4 l3">
+						<div class="col m2 l1">
 							<input class="value" id="week" type="checkbox" />
 							<label for="week" class="translate">Week</label>
 							<span class="translate"></span>
@@ -106,7 +107,7 @@
 					</div>
 					
 					<div class="row">
-						<div class="input-field col m6 l3">
+						<div class="col m2 l1">
 							<input class="value" id="month" type="checkbox" />
 							<label for="month" class="translate">Month</label>
 							<span class="translate"></span>
@@ -114,7 +115,7 @@
 					</div>
 					
 					<div class="row">
-						<div class="input-field col m6 l3">
+						<div class="col m2 l1">
 							<input class="value" id="year" type="checkbox" />
 							<label for="year" class="translate">Year</label>
 							<span class="translate"></span>
@@ -123,6 +124,11 @@
 					
 				</div>
 
+				<div class="row">
+					<div class="col s12">
+						<p class="translate">on save adapter restarts with new config immediately</p>
+					</div>
+				</div>
 			</div>
 
 			<!-- ++++++++++ TAB: Documentation ++++++++++ -->
@@ -347,11 +353,6 @@
 			</div>-->
 
 
-			<div class="row">
-				<div class="col s12">
-					<p class="translate">on save adapter restarts with new config immediately</p>
-				</div>
-			</div>
 
 		</div>
 	</div>
@@ -372,31 +373,6 @@
 			</div>
 		</div>
 	</div>
-	<!--
-	<div class="m adapter-container">
-        <div class="row">
-
-			<div class="col s12">
-				<ul class="tabs">
-					<li class="tab col s5"><a href="#tab-main" class="translate active">Main settings</a></li>
-				</ul>
-			</div>
-		</div>
-			<div class="row">
-				<div class="col s5">
-					<img src="verbrauchszaehler.png" class="logo">
-				</div>
-			</div>
-
-		<div id="tab-main" class="col s12 page">	-->
-
-			<!-- this is where the React components are loaded into -->
-			<!--<div class="m adapter-container" id="root"></div>-->
-
-			<!-- load compiled React scripts -->
-			<!--<script type="text/javascript" src="build/index.js"></script>
-		</div>
-	</div>-->
 </body>
 
 </html>

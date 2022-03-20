@@ -1,6 +1,6 @@
 {
   "name": "iobroker.verbrauchszaehler",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Verbrauchzähler für Öl und Wasser",
   "author": {
     "name": "Florian Peter",
@@ -54,12 +54,6 @@
     "main.js"
   ],
   "scripts": {
-    "prebuild": "rimraf admin/build",
-    "build": "build-adapter react",
-    "watch": "build-adapter react --watch",
-    "prebuild:react": "rimraf admin/build",
-    "build:react": "build-adapter react",
-    "watch:react": "build-adapter react --watch",
     "test:js": "mocha --config test/mocharc.custom.json \"{!(node_modules|test)/**/*.test.js,*.test.js,test/**/test!(PackageFiles|Startup).js}\"",
     "test:package": "mocha test/package --exit",
     "test:unit": "mocha test/unit --exit",
@@ -67,8 +61,9 @@
     "test": "npm run test:js && npm run test:package",
     "check": "tsc --noEmit -p tsconfig.check.json",
     "lint": "eslint --ext .js,.jsx",
-    "translate": "translate-adapter",
-    "release": "release-script"
+    "release": "release-script patch --yes",
+    "release-minor": "release-script minor --yes",
+    "release-major": "release-script major --yes"
   },
   "bugs": {
     "url": "https://github.com/proper0912/ioBroker.verbrauchszaehler/issues"

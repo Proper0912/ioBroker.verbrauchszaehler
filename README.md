@@ -13,29 +13,33 @@
 
 ## verbrauchszaehler adapter for ioBroker
 
-Verbrauchzähler für Öl und Wasser
+Consumption meters for oil and water
 
-Hier kannst dein aktuellen Tages Verbrauch sehen.
-Dein Gesamt Verbrauch vom Start des Adapters.
+Here you can see your current daily consumption.
+Your total consumption from the start of the adapter.
 
 
 ### **Work in Progress**
-####  0.0.3  (2022-03 2022-04)
-* (proper0912) readme Text anpassen mit Anleitung in Deutsch und Englisch
-* (proper0912) Jahres Verbräuche hinzufügen
-* (proper0912) eventuell hinzufügen der Statistik
+####  0.0.4  (2022-03 2022-06)
+* (proper0912) Adjust readme text with instructions in German and English
+* (proper0912) add the stats
+* (proper0912) add a widget for displaying statistics
 
 ## Changelog
-
+npm audit
 <!--
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+###  0.0.3  (2022-03-20)
+* (proper0912) Add annual consumption
+
+
 ###  0.0.2  (2022-03-17)
-* (proper0912) Grundgerüst für die Daten erfassung
-* (proper0912) index.html Aufbau für ein Datenpunkt
-* (proper0912) Strukt der Datenpunkte festlegen
-* (proper0912) Bild aktuliesieren
+* (proper0912) Framework for data collection
+* (proper0912) index.html Structure for a data point
+* (proper0912) Define the structure of the data points
+* (proper0912) image updated
 
 ###  0.0.1  (2022-03-09)
 * (proper0912) Initial Projekt
