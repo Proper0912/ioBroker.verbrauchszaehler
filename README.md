@@ -5,7 +5,7 @@
 [![Downloads](https://img.shields.io/npm/dm/iobroker.verbrauchszaehler.svg)](https://www.npmjs.com/package/iobroker.verbrauchszaehler)
 ![Number of Installations](https://iobroker.live/badges/verbrauchszaehler-installed.svg)
 ![Current version in stable repository](https://iobroker.live/badges/verbrauchszaehler-stable.svg)
-[![Dependency Status](https://img.shields.io/david/Proper0912/iobroker.verbrauchszaehler.svg)](https://david-dm.org/Proper0912/iobroker.verbrauchszaehler)
+[!(https://img.shields.io/travis/Proper0912/iobroker.verbrauchszaehler.svg)](https://app.travis-ci.com/proper0912/ioBroker.verbrauchszaehler.svg?branch=master)
 
 [![NPM](https://nodei.co/npm/iobroker.verbrauchszaehler.png?downloads=true)](https://nodei.co/npm/iobroker.verbrauchszaehler/)
 
