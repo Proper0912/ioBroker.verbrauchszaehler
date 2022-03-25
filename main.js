@@ -23,7 +23,7 @@ let maxWeeks = 0;
 let acktualWeek = 0;
 let months = {};
 let poll = null;
-let poll2 = null;
+let poll2 = null; 
 let value = { "hour":0, "hourDiff":0, "hourLast":0,"day":0, "dayDiff":0, "dayLast":0, "week":0, "weekdiff":0, "weekLast":0, "month":0, "monthDiff":0, "monthLast":0 }
 
 let statistic = {calc: {}, 
