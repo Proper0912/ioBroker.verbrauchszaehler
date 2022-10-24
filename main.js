@@ -14,6 +14,8 @@ let instAdapter = ``;
 let adapter = {};
 let settingsID = {};
 let timerSleep = 0;
+let dayEneable = false;
+let weekEneable = false;
 let monthEneable = false;
 let yearEneable = false;
 
@@ -26,7 +28,7 @@ let poll = null;
 let poll2 = null; 
 let value = { "hour":0, "hourDiff":0, "hourLast":0,"day":0, "dayDiff":0, "dayLast":0, "week":0, "weekdiff":0, "weekLast":0, "month":0, "monthDiff":0, "monthLast":0 }
 
-let statistic = {calc: {}, 
+let statistic = {calc: {day:{}, count:0}, 
 				lastSevenDay:{}, 
 				lastTwoWeek:{}, 
 				averageOfDay: {twoDay:0, sevenDay:0, twoWeek:0, oneMonth:0, twoMonth:0, sixMonth:0, year:0, completeDay:0}, 
@@ -63,6 +65,7 @@ function startAdapter(options) {
         try {
             adapter.log.info('cleaned everything up...');
 			adapter.setStateAsync("alive", { val: false, ack: true });
+			adapter.setStateAsync(`${settingsID.medium}.connect`, { val: false, ack: true });
             clearTimeout(timerSleep);
             callback();
         } catch (e) {
@@ -167,19 +170,137 @@ async function sleep(ms) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// +++++++++++++++++++ get Value from other Adapter ++++++++++++++++++++
+// +++++++++++++++++++ get Value for Adapter ++++++++++++++++++++
 
 
-function getValue(settingsID){
-	adapter.getForeignState(settingsID.triggerID, (err, state) => {
+async function getValue(settingsID){
+	
+	var m = settingsID.date.month + 1; 
+	var d = settingsID.date.day + 1;
+
+	// +++++++++++++++++++ get Value from other Adapter ++++++++++++++++++++
+
+	await adapter.setStateAsync(`${settingsID.medium}.connect`, { val: false, ack: true });
+
+	await adapter.getForeignState(settingsID.triggerID, (err, state) => {
 		// state can be null!
 		if (state) {
 			adapter.setState(settingsID.path.instanceValue,{ val: state.val, ack: true })
 			settingsID.value.instanceValue = state.val;
+			adapter.setStateAsync(`${settingsID.medium}.connect`, { val: true, ack: true });
 		} else{
 			adapter.log.info(err)
 		}
 	});
+
+	await sleep(1000)
+	// +++++++++++++++++++ get Value for day calc ++++++++++++++++++++
+			
+	await adapter.getForeignState(`${instAdapter}.${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, (err, state) => {
+		if (state) {
+			settingsID.value.day = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	await adapter.getForeignState(`${instAdapter}.${settingsID.path.calcDayLastValue}`, (err, state) => {
+		if (state) {
+			settingsID.value.calcDayLastValue = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	await adapter.getForeignState(`${instAdapter}.${settingsID.path.calcDayDiffValue}`, (err, state) => {
+		if (state) {
+			settingsID.value.calcDayDiffValue = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+
+	await adapter.log.debug(`ValueDay = ${settingsID.value.day} ; ValueLastDay = ${settingsID.value.calcDayLastValue} ; ValueDiffDay = ${settingsID.value.calcDayDiffValue}`)
+
+	await sleep(1000)
+	// +++++++++++++++++++ get Value for week calc ++++++++++++++++++++
+
+	await adapter.getForeignState(`${instAdapter}.${settingsID.path.week}${acktualWeek}.${d}.dayValue`, (err, state) => {
+		if (state) {
+			settingsID.value.week = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	await adapter.getForeignState(`${instAdapter}.${settingsID.path.calcWeekLastValue}`, (err, state) => {
+		if (state) {
+			settingsID.value.calcWeekLastValue = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	await adapter.getForeignState(`${instAdapter}.${settingsID.path.calcWeekDiffValue}`, (err, state) => {
+		if (state) {
+			settingsID.value.calcWeekDiffValue = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	
+	await adapter.log.debug(`ValueWeek = ${settingsID.value.week} ; ValueLastWeek = ${settingsID.value.calcWeekLastValue} ; ValueDiffWeek = ${settingsID.value.calcWeekDiffValue}`)
+
+	await sleep(1000)
+	// +++++++++++++++++++ get Value for month calc ++++++++++++++++++++
+
+	await adapter.getForeignState(`${instAdapter}.${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, (err, state) => {
+		if (state) {
+			settingsID.value.month = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	}); 
+	await adapter.getForeignState(`${instAdapter}.${settingsID.path.calcMonthLastValue}`, (err, state) => {
+		if (state) {
+			settingsID.value.calcMonthLastValue = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	await adapter.getForeignState(`${instAdapter}.${settingsID.path.calcMonthDiffValue}`, (err, state) => {
+		if (state) {
+			settingsID.value.calcMonthDiffValue = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	
+	await adapter.log.debug(`ValueMonth = ${settingsID.value.month} ; ValueLastMonth = ${settingsID.value.calcMonthLastValue} ; ValueDiffMonth = ${settingsID.value.calcMonthDiffValue}`)
+
+	await sleep(1000)
+	// +++++++++++++++++++ get Value for year calc ++++++++++++++++++++
+
+	await adapter.getState(`${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, (err, state) => {
+		if (state) {
+			settingsID.value.year = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	}); 
+	await adapter.getState(`${settingsID.path.calcYearLastValue}`, (err, state) => {
+		if (state) {
+			settingsID.value.calcYearLastValue = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+	await adapter.getState(`${settingsID.path.calcYearDiffValue}`, (err, state) => {
+		if (state) {
+			settingsID.value.calcYearDiffValue = state.val;	
+		} else{
+			adapter.log.error(err)
+		}
+	});
+		
+	await adapter.log.debug(`ValueYear = ${settingsID.value.year} ; ValueLastYear = ${settingsID.value.calcYearLastValue} ; ValueDiffYear = ${settingsID.value.calcYearDiffValue}`)
+
 }
 
  /**
@@ -236,6 +357,7 @@ function main(adapter) {
 	settingsID.path.week = `${settingsID.medium}.${settingsID.date.year}.week.`;
 	settingsID.path.month = `${settingsID.medium}.${settingsID.date.year}.month.`;
 	settingsID.path.year = `${settingsID.medium}.${settingsID.date.year}`;
+	settingsID.path.statistic = `${settingsID.medium}.statistic.`;
 
 	// Value definition
 	settingsID.value = {day:0, calcDayLastValue:0, calcDayDiffValue:0, instanceValue:0, week:0, calcWeekLastValue:0, calcWeekDiffValue:0, month:0, calcMonthLastValue:0, calcMonthDiffValue:0, year:0, calcYearLastValue:0, calcYearDiffValue:0};
@@ -478,37 +600,9 @@ function main(adapter) {
 
 			};
 
-		} /** else {
-			adapter.delObject(settingsID.medium + "." + year + ".calc.weekLastValue", function (err) {
-                if (err) {
-                    adapter.log.warn(err);
-                }
-            });
-			adapter.delObject(settingsID.medium + "." + year + ".calc.weekLastValue", function (err) {
-                if (err) {
-                    adapter.log.warn(err);
-                }
-            });
-
-			for ( var i = 1; i <= maxDay; i++)  { 
-				adapter.delObject(settingsID.medium + "." + year + ".week." + i +".weekValue", function (err) {
-					if (err) {
-						adapter.log.warn(err);
-					}
-				});
-				
-				for (var d =1; d <= 7; d++) {
-					adapter.delObject(settingsID.medium + "." + year + ".week." + i + "." + d + ".dayValue", function (err) {
-						if (err) {
-							adapter.log.warn(err);
-						}
-					});
-				};
-			};
-		}*/
+		} 
 
 		// +++++++++++++++++++ basic framework with Day with Month selected of Adapter ++++++++++++++++++++
-
 
 		if ( settingsID.day === true && settingsID.month === true ){
 			
@@ -598,43 +692,9 @@ function main(adapter) {
 				};
 			};
 
-		} /** else {
-			adapter.delObject(settingsID.medium + "." + year + ".calc.dayLastValue", function (err) {
-				if (err) {
-					adapter.log.warn(err);
-				}
-			});
-			adapter.delObject(settingsID.medium + "." + year + ".calc.dayDiffValue", function (err) {
-				if (err) {
-					adapter.log.warn(err);
-				}
-			});
-			adapter.delObject(settingsID.medium + "." + year + ".calc.monthLastValue", function (err) {
-				if (err) {
-					adapter.log.warn(err);
-				}
-			});
-			adapter.delObject(settingsID.medium + "." + year + ".calc.monthDiffValue", function (err) {
-				if (err) {
-					adapter.log.warn(err);
-				}
-			});
+		}  
 
-			for ( var i = 1; i <= 12; i++)  {
-				adapter.delObject(settingsID.medium + "." + year + ".month." + i +".monthValue", function (err) {
-					if (err) {
-						adapter.log.warn(err);
-					}
-				});
-				for ( var d =1; d <= months[year][i]; d++) { 
-					adapter.delObject(settingsID.medium + "." + year + ".month." + i + "." + d + ".dayValue", function (err) {
-						if (err) {
-							adapter.log.warn(err);
-						}
-					});
-				};
-			};
-		}*/
+		// +++++++++++++++++++ basic framework with year selected of Adapter ++++++++++++++++++++
 
 		if (settingsID.year === true) {
 			
@@ -650,7 +710,8 @@ function main(adapter) {
 					unit: "",
 				},
 				native: {},
-			});adapter.setObjectNotExistsAsync(settingsID.path.calcYearLastValue, {
+			});
+			adapter.setObjectNotExistsAsync(settingsID.path.calcYearLastValue, {
 				type: "state",
 				common: {
 					name: "calc_YearLastValue_" + settingsID.medium,
@@ -676,11 +737,54 @@ function main(adapter) {
 				},
 				native: {},
 			});
-		}
+		} 
+
+		// +++++++++++++++++++ basic framework for statistic  Adapter ++++++++++++++++++++
+
+		adapter.setObjectNotExistsAsync(`${settingsID.path.statistic}AverageDay`, {
+			type: "state",
+			common: {
+				name: "Statistic_Day_" + settingsID.medium,
+				type: "number",
+				role: "value",
+				read: true,
+				write: true,
+				def: 0,
+				unit: "",
+			},
+			native: {},
+		});
+		adapter.setObjectNotExistsAsync(`${settingsID.path.statistic}AverageTwoDay`, {
+			type: "state",
+			common: {
+				name: "Statistic_twoDay_" + settingsID.medium,
+				type: "number",
+				role: "value",
+				read: true,
+				write: true,
+				def: 0,
+				unit: "",
+			},
+			native: {},
+		});
+		adapter.setObjectNotExistsAsync(`${settingsID.path.statistic}AverageSevenDays`, {
+			type: "state",
+			common: {
+				name: "Statistic_sevenDays_" + settingsID.medium,
+				type: "number",
+				role: "value",
+				read: true,
+				write: true,
+				def: 0,
+				unit: "",
+			},
+			native: {},
+		});
+
 
 		adapter.subscribeStates("*");
 
-		//getValue(settingsID);
+		getValue(settingsID);
 		
 
 	} else {
@@ -736,8 +840,9 @@ async function pollingData(cmd, settingsID) {
 
 	if (cmd) {
 		poll = setInterval(() => {
-			getValue(settingsID)
-		}, 10000);
+			getValue(settingsID);
+			statisticDay(settingsID);
+		}, 60000);
 	};
 };
 
@@ -745,181 +850,102 @@ async function pollingData(cmd, settingsID) {
 
 // +++++++++++++++++++ calc for day Value of Adapter ++++++++++++++++++++ 
 
-function calcValue(settingsID) {
+async function calcValue(settingsID) {
 	
 	var m = settingsID.date.month + 1; 
 	var d = settingsID.date.day + 1;
 
-	if (settingsID.date.hours === 23 && settingsID.date.minutes === 59 && settingsID.date.seconds > 50 && settingsID.date.seconds <55 ) {
+	maxDay = maxDayOfYear(settingsID);
+	maxWeeks = maxWeekOfYear(settingsID);
+	acktualWeek = aktualWeekOfYear(settingsID);
+	months = dayPerMonth(settingsID);
+
+	if (settingsID.date.hours === 23 && settingsID.date.minutes === 59 && settingsID.date.seconds >= 50 && settingsID.date.seconds <= 51 ) {
+
+		await getValue(settingsID);
 		
 		// ******************** calculation days for the month statistic ***************************
 
-		if (settingsID.day) {
-			
-			adapter.getForeignState(`${instAdapter}.${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, (err, state) => {
-				if (state) {
-					settingsID.value.day = state.val;	
-				} else{
-					adapter.log.error(err)
-				}
-			});
-			adapter.getForeignState(`${instAdapter}.${settingsID.path.calcDayLastValue}`, (err, state1) => {
-				if (state1) {
-					settingsID.value.calcDayLastValue = state1.val;	
-				} else{
-					adapter.log.error(err)
-				}
-			});
-			adapter.getForeignState(`${instAdapter}.${settingsID.path.calcDayDiffValue}`, (err, state3) => {
-				if (state3) {
-					settingsID.value.calcDayDiffValue = state3.val;	
-				} else{
-					adapter.log.error(err)
-				}
-			});
+		if (settingsID.day && !dayEneable && !weekEneable && !monthEneable && !yearEneable) {
 				
 			if (parseFloat(settingsID.value.day)===0){
 				var a = parseFloat(`${settingsID.value.calcDayLastValue}`);
 				var b = parseFloat(`${settingsID.value.instanceValue}`);
 				if ( a !== b ) {
 					settingsID.value.calcDayDiffValue = diff(parseFloat(settingsID.value.instanceValue), parseFloat(settingsID.value.calcDayLastValue));
-					adapter.setStateAsync(`${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
-					adapter.setStateAsync(`${settingsID.path.calcDayDiffValue}`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
-					adapter.setStateAsync(`${settingsID.path.calcDayLastValue}`, { val: parseFloat(`${settingsID.value.instanceValue}`), ack: true } )
+					await adapter.setStateAsync(`${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
+					await adapter.setStateAsync(`${settingsID.path.calcDayDiffValue}`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
+					await adapter.setStateAsync(`${settingsID.path.calcDayLastValue}`, { val: parseFloat(`${settingsID.value.instanceValue}`), ack: true } )
 					settingsID.value.calcDayLastValue = parseFloat(settingsID.value.instanceValue);
+					adapter.log.debug(`Berechnung fertig: für den ${settingsID.date.date}.${m}.${settingsID.date.year} ergab ein Wert von ${settingsID.value.day}!`);
+					dayEneable = true;
+				} else {
+					adapter.log.debug(`Berechnung fehlgeschlagen!`);
 				}
-			} else {
-				adapter.log.debug(`Berechnung fertig: für den ${settingsID.date.date}.${m}.${settingsID.date.year} ergab ein Wert von ${settingsID.value.day}!`);
+				adapter.log.debug(`Day finish`)
 			}
+
+			await sleep(500)
 		
 			// ******************** calculation days for the week statistic ***************************
 
-			if (settingsID.week) {
+			if (settingsID.week && dayEneable) {
 
-				adapter.getForeignState(`${instAdapter}.${settingsID.path.week}${acktualWeek}.${d}.dayValue`, (err, state4) => {
-					if (state4) {
-						settingsID.value.week = state4.val;	
-					} else{
-						adapter.log.error(err)
-					}
-				});
-				adapter.getForeignState(`${instAdapter}.${settingsID.path.calcWeekLastValue}`, (err, state5) => {
-					if (state5) {
-						settingsID.value.calcWeekLastValue = state5.val;	
-					} else{
-						adapter.log.error(err)
-					}
-				});
-				adapter.getForeignState(`${instAdapter}.${settingsID.path.calcWeekDiffValue}`, (err, state6) => {
-					if (state6) {
-						settingsID.value.calcWeekDiffValue = state6.val;	
-					} else{
-						adapter.log.error(err)
-					}
-				});
-
-				if (parseFloat(settingsID.value.week)===0){
-					adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.${d}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
-					settingsID.value.week = parseFloat(`${settingsID.value.calcDayDiffValue}`);
-					if ( d === 1 ) {
-						settingsID.value.calcWeekDiffValue = add( 0 , parseFloat(settingsID.value.week) )
-					} else {
-						settingsID.value.calcWeekDiffValue = add( parseFloat(settingsID.value.calcWeekLastValue) , parseFloat(settingsID.value.week) )
-					}
-					adapter.setStateAsync(`${settingsID.path.calcWeekDiffValue}`, { val: parseFloat(`${settingsID.value.calcWeekDiffValue}`), ack: true } )
-					adapter.setStateAsync(`${settingsID.path.calcWeekLastValue}`, { val: parseFloat(`${settingsID.value.calcWeekDiffValue}`), ack: true } )
-					adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.weekValue`, { val: parseFloat(`${settingsID.value.calcWeekDiffValue}`), ack: true } )
+				await adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.${d}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
+				settingsID.value.week = parseFloat(`${settingsID.value.calcDayDiffValue}`);
+				if ( d === 1 ) {
+					settingsID.value.calcWeekDiffValue = add( 0 , parseFloat(settingsID.value.week) )
 				} else {
-					adapter.log.debug(`Berechnung fertig: für die KW ${acktualWeek} Tag ${d} ergab den Wert von ${settingsID.value.week}!`);
+					settingsID.value.calcWeekDiffValue = add( parseFloat(settingsID.value.calcWeekLastValue) , parseFloat(settingsID.value.week) )
 				}
+				await adapter.setStateAsync(`${settingsID.path.calcWeekDiffValue}`, { val: parseFloat(`${settingsID.value.calcWeekDiffValue}`), ack: true } )
+				await adapter.setStateAsync(`${settingsID.path.calcWeekLastValue}`, { val: parseFloat(`${settingsID.value.calcWeekDiffValue}`), ack: true } )
+				await adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.weekValue`, { val: parseFloat(`${settingsID.value.calcWeekDiffValue}`), ack: true } )
+				adapter.log.debug(`Week finish`)
+				adapter.log.debug(`Berechnung fertig: für die KW ${acktualWeek} Tag ${d} ergab den Wert von ${settingsID.value.week}!`);
+				weekEneable = true;
 			}
+
+			await sleep(500)
 
 			// ******************** calculation month statistic ***************************
 
-			if (settingsID.month) {
+			if (settingsID.month && dayEneable && weekEneable) {
 
-				
-				adapter.getForeignState(`${instAdapter}.${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, (err, state7) => {
-					if (state7) {
-						settingsID.value.month = state7.val;	
-					} else{
-						adapter.log.error(err)
-					}
-				}); 
-				adapter.getForeignState(`${instAdapter}.${settingsID.path.calcMonthLastValue}`, (err, state8) => {
-					if (state8) {
-						settingsID.value.calcMonthLastValue = state8.val;	
-					} else{
-						adapter.log.error(err)
-					}
-				});
-				adapter.getForeignState(`${instAdapter}.${settingsID.path.calcMonthDiffValue}`, (err, state9) => {
-					if (state9) {
-						settingsID.value.calcMonthDiffValue = state9.val;	
-					} else{
-						adapter.log.error(err)
-					}
-				});
-
-				if ( monthEneable === false){
-					// adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.${d}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
-					settingsID.value.month = parseFloat(`${settingsID.value.calcDayDiffValue}`);
-					if ( settingsID.date.date === 1 ) {
-						settingsID.value.calcMonthDiffValue = add( 0 , parseFloat(settingsID.value.month) )
-					} else {
-						settingsID.value.calcMonthDiffValue = add( parseFloat(settingsID.value.calcMonthLastValue) , parseFloat(settingsID.value.month) )
-					}
-					adapter.setStateAsync(`${settingsID.path.calcMonthDiffValue}`, { val: parseFloat(`${settingsID.value.calcMonthDiffValue}`), ack: true } )
-					adapter.setStateAsync(`${settingsID.path.calcMonthLastValue}`, { val: parseFloat(`${settingsID.value.calcMonthDiffValue}`), ack: true } )
-					adapter.setStateAsync(`${settingsID.path.month}${m}.monthValue`, { val: parseFloat(`${settingsID.value.calcMonthDiffValue}`), ack: true } )
-					monthEneable = true;
+				// adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.${d}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
+				settingsID.value.month = parseFloat(`${settingsID.value.calcDayDiffValue}`);
+				if ( settingsID.date.date === 1 ) {
+					settingsID.value.calcMonthDiffValue = add( 0 , parseFloat(settingsID.value.month) )
 				} else {
-					adapter.log.debug(`Berechnung fertig: für den Monat ${m} ergab den Wert von ${settingsID.value.month}!`);
+					settingsID.value.calcMonthDiffValue = add( parseFloat(settingsID.value.calcMonthLastValue) , parseFloat(settingsID.value.month) )
 				}
+				await adapter.setStateAsync(`${settingsID.path.calcMonthDiffValue}`, { val: parseFloat(`${settingsID.value.calcMonthDiffValue}`), ack: true } )
+				await adapter.setStateAsync(`${settingsID.path.calcMonthLastValue}`, { val: parseFloat(`${settingsID.value.calcMonthDiffValue}`), ack: true } )
+				await adapter.setStateAsync(`${settingsID.path.month}${m}.monthValue`, { val: parseFloat(`${settingsID.value.calcMonthDiffValue}`), ack: true } )
+				monthEneable = true;
+				adapter.log.debug(`Month finish`)
+				adapter.log.debug(`Berechnung fertig: für den Monat ${m} ergab den Wert von ${settingsID.value.calcMonthDiffValue}!`);
 			}
+			
+			await sleep(500)
 
 			// ******************** calculation year statistic ***************************
 
-			if (settingsID.year) {
+			if (settingsID.year && dayEneable && weekEneable && monthEneable) {
 
-				
-				adapter.getForeignState(`${instAdapter}.${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, (err, state10) => {
-					if (state10) {
-						settingsID.value.year = state10.val;	
-					} else{
-						adapter.log.error(err)
-					}
-				}); 
-				adapter.getForeignState(`${instAdapter}.${settingsID.path.calcYearLastValue}`, (err, state11) => {
-					if (state11) {
-						settingsID.value.calcYearLastValue = state11.val;	
-					} else{
-						adapter.log.error(err)
-					}
-				});
-				adapter.getForeignState(`${instAdapter}.${settingsID.path.calcYearDiffValue}`, (err, state12) => {
-					if (state12) {
-						settingsID.value.calcYearDiffValue = state12.val;	
-					} else{
-						adapter.log.error(err)
-					}
-				});
-
-				if ( yearEneable === false){
-					// adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.${d}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
-					settingsID.value.year = parseFloat(`${settingsID.value.calcDayDiffValue}`);
-					if ( settingsID.date.date === 1 && settingsID.date.month === 0) {
-						settingsID.value.calcYearDiffValue = add( 0 , parseFloat(settingsID.value.Year) )
-					} else {
-						settingsID.value.calcYearDiffValue = add( parseFloat(settingsID.value.calcYearLastValue) , parseFloat(settingsID.value.year) )
-					}
-					adapter.setStateAsync(`${settingsID.path.calcYearDiffValue}`, { val: parseFloat(`${settingsID.value.calcYearDiffValue}`), ack: true } )
-					adapter.setStateAsync(`${settingsID.path.calcYearLastValue}`, { val: parseFloat(`${settingsID.value.calcYearDiffValue}`), ack: true } )
-					adapter.setStateAsync(`${settingsID.path.year}.year.yearValue`, { val: parseFloat(`${settingsID.value.calcYearDiffValue}`), ack: true } )
-					monthEneable = true;
+				// adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.${d}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
+				settingsID.value.year = parseFloat(`${settingsID.value.calcDayDiffValue}`);
+				if ( settingsID.date.date === 1 && settingsID.date.month === 0) {
+					settingsID.value.calcYearDiffValue = add( 0 , parseFloat(settingsID.value.Year) )
 				} else {
-					adapter.log.debug(`Berechnung fertig: für den Monat ${m} ergab den Wert von ${settingsID.value.year}!`);
+					settingsID.value.calcYearDiffValue = add( parseFloat(settingsID.value.calcYearLastValue) , parseFloat(settingsID.value.year) )
 				}
+				await adapter.setStateAsync(`${settingsID.path.calcYearDiffValue}`, { val: parseFloat(`${settingsID.value.calcYearDiffValue}`), ack: true } )
+				await adapter.setStateAsync(`${settingsID.path.calcYearLastValue}`, { val: parseFloat(`${settingsID.value.calcYearDiffValue}`), ack: true } )
+				await adapter.setStateAsync(`${settingsID.path.year}.year.yearValue`, { val: parseFloat(`${settingsID.value.calcYearDiffValue}`), ack: true } )
+				yearEneable = true;
+				adapter.log.debug(`Year finish`)
+				adapter.log.debug(`Berechnung fertig: für den Jahr ${settingsID.date.year} ergab den Wert von ${settingsID.value.calcYearDiffValue}!`);
 			}
 
 		} else {
@@ -927,9 +953,12 @@ function calcValue(settingsID) {
 		}
 		
 	} else {
-		if (monthEneable === true) {
-			adapter.log.debug(`Timestamp = ${settingsID.date.hours}:${settingsID.date.minutes}:${settingsID.date.seconds} in 2 seconds steps`);
+		if (dayEneable){
+			await adapter.log.debug(`Timestamp = ${settingsID.date.hours}:${settingsID.date.minutes}:${settingsID.date.seconds} and Day = ${dayEneable}, Week = ${weekEneable}, Month = ${monthEneable}, Year = ${yearEneable}`);
+			dayEneable = false;
+			weekEneable =false;
 			monthEneable = false;
+			yearEneable = false;
 		}
 	}
 
@@ -946,6 +975,273 @@ function diff(a, b) {
 function add(a, b) {
 	return Math.abs(a + b);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// +++++++++++++++++++ make the statistic for Adapter ++++++++++++++++++++
+
+async function statisticDay(settingsID) {
+
+	var m = settingsID.date.month + 1;
+	var mm = settingsID.date.month; 
+	var d = settingsID.date.date;
+	var dd = settingsID.date.date - 7;
+	var dOldMonth = 0;
+	var mBefore = settingsID.date.month - 1;
+	var y = 0
+
+	statistic.calc.count = 0;
+
+	if (m === 1){
+		y = settingsID.date.year - 1;
+	} else {
+		y = settingsID.date.year;
+	}
+
+	dOldMonth = months[y][mBefore];
+
+	if (d >= 8 && m === settingsID.date.month + 1) {    // Wenn der Monat Tag 7 oder weiter ist!
+		for ( d; d >= dd ; d--){
+			adapter.getState(`${settingsID.path.month}${m}.${d}.dayValue`, async (err, state) => {
+				if (state) {
+					statistic.calc.day[statistic.calc.count] = state.val;
+					if (statistic.calc.day[statistic.calc.count] !== 0) {
+						statistic.calc.count += 1;
+					}
+				} else{
+					adapter.log.error(err)
+				}
+			});		
+		};
+		adapter.log.debug(`Tag 8 und mehr im Monat`)
+	} else if ( d === 7 && m === settingsID.date.month + 1) {    // Wenn der Monat Tag 6 ist!
+		for ( d; d >= 1 ; d--){
+			adapter.getState(`${settingsID.path.month}${m}.${d}.dayValue`, async (err, state) => {
+				if (state) {
+					statistic.calc.day[statistic.calc.count] = state.val;
+					if (statistic.calc.day[statistic.calc.count] !== 0) {
+						statistic.calc.count += 1;
+					}
+				} else{
+					adapter.log.error(err)
+				}
+			});		
+		};
+		dOldMonth = months[y][mBefore];
+		
+		if (dOldMonth >= 10) {
+			for (var i = dOldMonth ; i >= dOldMonth - 2 ; i--){
+				adapter.getState(`${settingsID.path.month}${mm}.${i}.dayValue`, async (err, state) => {
+					if (state) {
+						statistic.calc.day[statistic.calc.count] = state.val;
+						if (statistic.calc.day[statistic.calc.count] !== 0) {
+							statistic.calc.count += 1;
+						}
+					} else{
+						adapter.log.error(err)
+					}
+				});		
+			};
+		}
+		adapter.log.debug(`Tag 7 im Monat`)
+	}else if ( d === 6 && m === settingsID.date.month + 1) {    // Wenn der Monat Tag 6 ist!
+		for ( d; d >= 1 ; d--){
+			adapter.getState(`${settingsID.path.month}${m}.${d}.dayValue`, async (err, state) => {
+				if (state) {
+					statistic.calc.day[statistic.calc.count] = state.val;
+					if (statistic.calc.day[statistic.calc.count] !== 0) {
+						statistic.calc.count += 1;
+					}
+				} else{
+					adapter.log.error(err)
+				}
+			});		
+		};
+		dOldMonth = months[y][mBefore];
+		
+		if (dOldMonth >= 10) {
+			for (var i = dOldMonth ; i >= dOldMonth - 2 ; i--){
+				adapter.getState(`${settingsID.path.month}${mm}.${i}.dayValue`, async (err, state) => {
+					if (state) {
+						statistic.calc.day[statistic.calc.count] = state.val;
+						if (statistic.calc.day[statistic.calc.count] !== 0) {
+							statistic.calc.count += 1;
+						}
+					} else{
+						adapter.log.error(err)
+					}
+				});		
+			};
+		}
+		adapter.log.debug(`Tag 6 im Monat`)
+	} else if ( d === 5 && m === settingsID.date.month + 1) {    // Wenn der Monat Tag 5 ist!
+		for ( d; d >= 1 ; d--){
+			adapter.getState(`${settingsID.path.month}${m}.${d}.dayValue`, async (err, state) => {
+				if (state) {
+					statistic.calc.day[statistic.calc.count] = state.val;
+					if (statistic.calc.day[statistic.calc.count] !== 0) {
+						statistic.calc.count += 1;
+					}
+				} else{
+					adapter.log.error(err)
+				}
+			});		
+		};
+		dOldMonth = months[y][mBefore];
+		if (dOldMonth >= 10) {
+			for (var i = dOldMonth ; i >= dOldMonth - 3 ; i--){
+				adapter.getState(`${settingsID.path.month}${mm}.${i}.dayValue`, async (err, state) => {
+					if (state) {
+						statistic.calc.day[statistic.calc.count] = state.val;
+						if (statistic.calc.day[statistic.calc.count] !== 0) {
+							statistic.calc.count += 1;
+						}
+					} else{
+						adapter.log.error(err)
+					}
+				});		
+			};
+		}
+		adapter.log.debug(`Tag 5 im Monat`)
+	} else if ( d === 4 && m === settingsID.date.month + 1) {    // Wenn der Monat Tag 4 ist!
+		for ( d; d >= 1 ; d--){
+			adapter.getState(`${settingsID.path.month}${m}.${d}.dayValue`, async (err, state) => {
+				if (state) {
+					statistic.calc.day[statistic.calc.count] = state.val;
+					if (statistic.calc.day[statistic.calc.count] !== 0) {
+						statistic.calc.count += 1;
+					}
+				} else{
+					adapter.log.error(err)
+				}
+			});		
+		};
+		dOldMonth = months[y][mBefore];
+		if (dOldMonth >= 10) {
+			for (var i = dOldMonth ; i >= dOldMonth - 4 ; i--){
+				adapter.getState(`${settingsID.path.month}${mm}.${i}.dayValue`, async (err, state) => {
+					if (state) {
+						statistic.calc.day[statistic.calc.count] = state.val;
+						if (statistic.calc.day[statistic.calc.count] !== 0) {
+							statistic.calc.count += 1;
+						}
+					} else{
+						adapter.log.error(err)
+					}
+				});		
+			};
+		}
+		adapter.log.debug(`Tag 4 im Monat`)
+	} else if ( d === 3 && m === settingsID.date.month + 1) {    // Wenn der Monat Tag 3 ist!
+		for ( d; d >= 1 ; d--){
+			adapter.getState(`${settingsID.path.month}${m}.${d}.dayValue`, async (err, state) => {
+				if (state) {
+					statistic.calc.day[statistic.calc.count] = state.val;
+					if (statistic.calc.day[statistic.calc.count] !== 0) {
+						statistic.calc.count += 1;
+					}
+				} else{
+					adapter.log.error(err)
+				}
+			});		
+		};
+		dOldMonth = months[y][mBefore];
+		if (dOldMonth >= 10) {
+			for (var i = dOldMonth ; i >= dOldMonth - 5 ; i--){
+				adapter.getState(`${settingsID.path.month}${mm}.${i}.dayValue`, async (err, state) => {
+					if (state) {
+						statistic.calc.day[statistic.calc.count] = state.val;
+						if (statistic.calc.day[statistic.calc.count] !== 0) {
+							statistic.calc.count += 1;
+						}
+					} else{
+						adapter.log.error(err)
+					}
+				});		
+			};
+		}
+		adapter.log.debug(`Tag 3 im Monat`)
+	} else if ( d === 2 && m === settingsID.date.month + 1) {    // Wenn der Monat Tag 2 ist!
+		for ( d; d >= 1 ; d--){
+			adapter.getState(`${settingsID.path.month}${m}.${d}.dayValue`, async (err, state) => {
+				if (state) {
+					statistic.calc.day[statistic.calc.count] = state.val;
+					if (statistic.calc.day[statistic.calc.count] !== 0) {
+						statistic.calc.count += 1;
+					}
+				} else{
+					adapter.log.error(err)
+				}
+			});		
+		};
+		dOldMonth = months[y][mBefore];
+		if (dOldMonth >= 10) {
+			for (var i = dOldMonth ; i >= dOldMonth - 6 ; i--){
+				adapter.getState(`${settingsID.path.month}${mm}.${i}.dayValue`, async (err, state) => {
+					if (state) {
+						statistic.calc.day[statistic.calc.count] = state.val;
+						if (statistic.calc.day[statistic.calc.count] !== 0) {
+							statistic.calc.count += 1;
+						}
+					} else{
+						adapter.log.error(err)
+					}
+				});		
+			};
+		}
+		adapter.log.debug(`Tag 2 im Monat`)
+	} else if ( d === 1 && m === settingsID.date.month + 1) {    // Wenn der Monat Tag 1 ist!
+		adapter.getState(`${settingsID.path.month}${m}.${d}.dayValue`, async (err, state) => {
+			if (state) {
+				statistic.calc.day[statistic.calc.count] = state.val;
+				if (statistic.calc.day[statistic.calc.count] !== 0) {
+					statistic.calc.count += 1;
+				}
+			} else{
+				adapter.log.error(err)
+			}
+		});		
+		if (dOldMonth >= 10) {
+			for (var i = dOldMonth ; i >= dOldMonth - 7 ; i--){
+				adapter.getState(`${settingsID.path.month}${mm}.${i}.dayValue`, async (err, state) => {
+					if (state) {
+						statistic.calc.day[statistic.calc.count] = state.val;
+						if (statistic.calc.day[statistic.calc.count] !== 0) {
+							statistic.calc.count += 1;
+						}
+					} else{
+						adapter.log.error(err)
+					}
+				});		
+			};
+		}
+		adapter.log.debug(`Tag 1 im Monat ${m} und letzter Tag ${dOldMonth} im Monat ${mm}`)
+	} 
+
+	if (statistic.calc.day[0] !== 0 ) {
+		await adapter.setStateAsync(`${settingsID.path.statistic}AverageDay`, { val: parseFloat(`${statistic.calc.day[0]}`), ack: true } );
+	} else {
+		await adapter.setStateAsync(`${settingsID.path.statistic}AverageDay`, { val: 0, ack: true } );
+	}
+
+	if (statistic.calc.day[0] !== 0 && statistic.calc.day[1] !== 0) {
+		statistic.averageOfDay.twoDay = Math.round((statistic.calc.day[0] + statistic.calc.day[1]) / 2); 
+		await adapter.setStateAsync(`${settingsID.path.statistic}AverageTwoDay`, { val: parseFloat(`${statistic.averageOfDay.twoDay}`), ack: true } );
+	} else {
+		await adapter.setStateAsync(`${settingsID.path.statistic}AverageTwoDay`, { val: 0, ack: true } );
+	}
+
+	if (statistic.calc.day[0] !== 0 && statistic.calc.day[1] !== 0 && statistic.calc.day[2] !== 0 && statistic.calc.day[3] !== 0 && statistic.calc.day[4] !== 0 && statistic.calc.day[5] !== 0 && statistic.calc.day[6] !== 0) {
+		statistic.averageOfDay.sevenDay = Math.round((statistic.calc.day[0] + statistic.calc.day[1] + statistic.calc.day[2] + statistic.calc.day[3] + statistic.calc.day[4] + statistic.calc.day[5] + statistic.calc.day[6]) / 7); 
+		await adapter.setStateAsync(`${settingsID.path.statistic}AverageSevenDays`, { val: parseFloat(`${statistic.averageOfDay.sevenDay}`), ack: true } );
+	} else {
+		await adapter.setStateAsync(`${settingsID.path.statistic}AverageSevenDays`, { val: 0, ack: true } );
+	}
+
+	adapter.log.debug(`last seven Day: 1=${statistic.calc.day[0]}, 2=${statistic.calc.day[1]}, 3=${statistic.calc.day[2]}, 4=${statistic.calc.day[3]}, 5=${statistic.calc.day[4]}, 6=${statistic.calc.day[5]}, 7=${statistic.calc.day[6]}, count=${statistic.calc.count}`)
+	adapter.log.debug(`One Day = ${statistic.calc.day[0]} and two Day = ${statistic.averageOfDay.twoDay} and seven Days = ${statistic.averageOfDay.sevenDay}`)
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

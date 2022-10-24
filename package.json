@@ -1,6 +1,6 @@
 {
   "name": "iobroker.verbrauchszaehler",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Verbrauchzähler für Öl und Wasser",
   "author": {
     "name": "Florian Peter",
