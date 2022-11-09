@@ -31,7 +31,7 @@ Your total consumption from the start of the adapter.
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
-###  0.0.5  (2022-03-20)
+###  0.0.5  (2022-11-09)
 * (proper0912) add refill calculator for oil tank für test
 
 
