@@ -20,11 +20,10 @@ Your total consumption from the start of the adapter.
 
 
 ### **Work in Progress**
-####  0.0.4  (2022-06 2022-12)
+####  0.0.6  (2022-06 2022-12)
 * (proper0912) Adjust readme text with instructions in German and English
 * (proper0912) Water consumption
 * (proper0912) add a widget for displaying statistics
-* (proper0912) add refil oil tank calc
 
 ## Changelog
 
@@ -32,6 +31,10 @@ Your total consumption from the start of the adapter.
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+###  0.0.5  (2022-03-20)
+* (proper0912) add refill calculator for oil tank für test
+
+
 ###  0.0.4  (2022-03-20)
 * (proper0912) Added statistics
 

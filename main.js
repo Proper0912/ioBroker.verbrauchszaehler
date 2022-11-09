@@ -860,9 +860,64 @@ async function calcValue(settingsID) {
 	acktualWeek = aktualWeekOfYear(settingsID);
 	months = dayPerMonth(settingsID);
 
+	
+
 	if (settingsID.date.hours === 23 && settingsID.date.minutes === 59 && settingsID.date.seconds >= 50 && settingsID.date.seconds <= 51 ) {
 
 		await getValue(settingsID);
+
+		// ******************** calculation when oiltank filling up ***************************
+
+		var a = parseFloat(`${settingsID.value.calcDayLastValue}`);
+		var b = parseFloat(`${settingsID.value.instanceValue}`);
+		var c;
+
+		if ( a > b ) {
+			c = sub(parseFloat(settingsID.value.instanceValue), parseFloat(settingsID.value.calcDayLastValue));
+			if ( c < 600) {
+				a = add(parseFloat(settingsID.value.instanceValue), 500);
+			} else if ( c < 1100 ) {
+				a = add(parseFloat(settingsID.value.instanceValue), 1000);
+			} else if ( c < 1600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 1500);
+			} else if ( c < 2100 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 2000);
+			} else if ( c < 2600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 2500);
+			} else if ( c < 3100 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 3000);
+			} else if ( c < 3600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 3500);
+			} else if ( c < 4100 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 4000);
+			} else if ( c < 4600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 4500);
+			} else if ( c < 5100 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 5000);
+			} else if ( c < 5600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 5500);
+			} else if ( c < 6100 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 6000);
+			} else if ( c < 6600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 6500);
+			} else if ( c < 7100 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 7000);
+			} else if ( c < 7600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 7500);
+			} else if ( c < 8100 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 8000);
+			} else if ( c < 8600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 8500);
+			} else if ( c < 9100 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 9000);
+			} else if ( c < 9600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 9500);
+			} else if ( c < 10100 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 10000);
+			} else if ( c < 10600 ){
+				a = add(parseFloat(settingsID.value.instanceValue), 10500);
+			}
+		}
 		
 		// ******************** calculation days for the month statistic ***************************
 
@@ -872,7 +927,7 @@ async function calcValue(settingsID) {
 				var a = parseFloat(`${settingsID.value.calcDayLastValue}`);
 				var b = parseFloat(`${settingsID.value.instanceValue}`);
 				if ( a !== b ) {
-					settingsID.value.calcDayDiffValue = diff(parseFloat(settingsID.value.instanceValue), parseFloat(settingsID.value.calcDayLastValue));
+					settingsID.value.calcDayDiffValue = sub(parseFloat(settingsID.value.instanceValue), parseFloat(settingsID.value.calcDayLastValue));
 					await adapter.setStateAsync(`${settingsID.path.month}${m}.${settingsID.date.date}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
 					await adapter.setStateAsync(`${settingsID.path.calcDayDiffValue}`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
 					await adapter.setStateAsync(`${settingsID.path.calcDayLastValue}`, { val: parseFloat(`${settingsID.value.instanceValue}`), ack: true } )
@@ -968,7 +1023,7 @@ async function calcValue(settingsID) {
 
 // +++++++++++++++++++ calc and add of Adapter ++++++++++++++++++++
 
-function diff(a, b) {
+function sub(a, b) {
 	return Math.abs(a - b);
 }
 

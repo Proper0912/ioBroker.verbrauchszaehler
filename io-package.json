@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "verbrauchszaehler",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "news": {
+      "0.0.5": {
+        "en": "add refill calculator for oil tank für test",
+        "de": "Nachfüllrechner für Öltank zum Testen hinzufügen",
+        "ru": "добавить калькулятор заправки масляного бака для теста",
+        "pt": "adicionar calculadora de recarga para tanque de óleo für test",
+        "nl": "bijvulcalculator voor olietank toevoegen voor test",
+        "fr": "ajouter un calculateur de remplissage pour le test du réservoir d'huile",
+        "it": "aggiungi il calcolatore di riempimento per il test del serbatoio dell'olio",
+        "es": "agregue la calculadora de recarga para el tanque de aceite para la prueba",
+        "pl": "dodaj kalkulator do napełniania zbiornika oleju do testu",
+        "zh-cn": "為油箱測試添加加註計算器"
+      },
       "0.0.4": {
         "en": "Added statistics",
         "de": "Statistic hinzugefügt",
