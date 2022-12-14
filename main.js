@@ -821,8 +821,7 @@ async function pollingDate(cmd, settingsID) {
 
 	if (cmd) {
 		poll2 = setInterval(() => {
-			getDateOfInstanc(settingsID)
-			calcValue(settingsID)
+			getDateOfInstanc(settingsID);
 		}, 2000);
 	};
 };
@@ -842,6 +841,7 @@ async function pollingData(cmd, settingsID) {
 		poll = setInterval(() => {
 			getValue(settingsID);
 			statisticDay(settingsID);
+			calcValue(settingsID);
 		}, 60000);
 	};
 };
@@ -862,7 +862,7 @@ async function calcValue(settingsID) {
 
 	
 
-	if (settingsID.date.hours === 23 && settingsID.date.minutes === 59 && settingsID.date.seconds >= 50 && settingsID.date.seconds <= 51 ) {
+	if (settingsID.date.hours === 23 && settingsID.date.minutes === 59) {
 
 		await getValue(settingsID);
 
