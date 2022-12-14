@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "verbrauchszaehler",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "news": {
+      "0.0.6": {
+        "en": "Bugfix",
+        "de": "Bugfix",
+        "ru": "Bugfix",
+        "pt": "Bugfix",
+        "nl": "Bugfix",
+        "fr": "Bugfix",
+        "it": "Bugfix",
+        "es": "Bugfix",
+        "pl": "Bugfix",
+        "zh-cn": "Bugfix"
+      },
       "0.0.5": {
         "en": "add refill calculator for oil tank für test",
         "de": "Nachfüllrechner für Öltank zum Testen hinzufügen",
