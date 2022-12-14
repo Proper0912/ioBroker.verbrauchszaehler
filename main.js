@@ -875,47 +875,47 @@ async function calcValue(settingsID) {
 		if ( a > b ) {
 			c = sub(parseFloat(settingsID.value.instanceValue), parseFloat(settingsID.value.calcDayLastValue));
 			if ( c < 600) {
-				a = add(parseFloat(settingsID.value.instanceValue), 500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 500);
 			} else if ( c < 1100 ) {
-				a = add(parseFloat(settingsID.value.instanceValue), 1000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 1000);
 			} else if ( c < 1600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 1500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 1500);
 			} else if ( c < 2100 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 2000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 2000);
 			} else if ( c < 2600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 2500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 2500);
 			} else if ( c < 3100 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 3000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 3000);
 			} else if ( c < 3600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 3500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 3500);
 			} else if ( c < 4100 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 4000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 4000);
 			} else if ( c < 4600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 4500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 4500);
 			} else if ( c < 5100 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 5000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 5000);
 			} else if ( c < 5600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 5500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 5500);
 			} else if ( c < 6100 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 6000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 6000);
 			} else if ( c < 6600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 6500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 6500);
 			} else if ( c < 7100 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 7000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 7000);
 			} else if ( c < 7600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 7500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 7500);
 			} else if ( c < 8100 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 8000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 8000);
 			} else if ( c < 8600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 8500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 8500);
 			} else if ( c < 9100 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 9000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 9000);
 			} else if ( c < 9600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 9500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 9500);
 			} else if ( c < 10100 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 10000);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 10000);
 			} else if ( c < 10600 ){
-				a = add(parseFloat(settingsID.value.instanceValue), 10500);
+				a = add(parseFloat(settingsID.value.calcDayLastValue), 10500);
 			}
 		}
 		
