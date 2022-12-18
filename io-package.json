@@ -140,7 +140,8 @@
     "extIcon": "https://raw.githubusercontent.com/proper0912/ioBroker.verbrauchszaehler/main/admin/verbrauchszaehler.png",
     "type": "storage",
     "connectionType": "local",
-    "dataSource": "poll"
+    "dataSource": "poll",
+    "installedFrom": "proper0912/ioBroker.verbrauchszaehler#2f79f64cf055ad63c5448e8d5515c60d482a9208"
   },
   "native": {
     "triggerID": " ",

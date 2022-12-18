@@ -783,8 +783,6 @@ function main(adapter) {
 
 
 		adapter.subscribeStates("*");
-
-		getValue(settingsID);
 		
 
 	} else {
@@ -795,7 +793,7 @@ function main(adapter) {
 
 	adapter.log.debug(`Nach dem Init der Value ${settingsID.value.calcDayDiffValue} ${settingsID.value.calcDayLastValue} ${settingsID.value.calcWeekDiffValue} ${settingsID.value.calcWeekLastValue} ${settingsID.value.instanceValue}`);
 	
-	if (adapter.connected) {
+	if (adapter.run) {
 		adapter.setStateAsync("alive", { val: true, ack: true });
 		//pollingDate(true, settingsID);
 		//pollingData(true, settingsID);
