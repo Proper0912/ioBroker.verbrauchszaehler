@@ -141,7 +141,7 @@
     "type": "storage",
     "connectionType": "local",
     "dataSource": "poll",
-    "installedFrom": "proper0912/ioBroker.verbrauchszaehler#2f79f64cf055ad63c5448e8d5515c60d482a9208"
+    "installedFrom": "proper0912/ioBroker.verbrauchszaehler#57bc05bbd65bc50c7e38b7f5a9f01b2eaccc119a"
   },
   "native": {
     "triggerID": " ",

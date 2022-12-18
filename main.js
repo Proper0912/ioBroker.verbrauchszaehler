@@ -43,7 +43,16 @@ function startAdapter(options) {
 	options = options || {};
 	
 	Object.assign(options, {
-		name: adapterName,
+		name: adapterName,ready: () => {
+			try {
+				adapter.log.debug("adapter.on-ready: << READY >>");
+					main(adapter);
+				
+			} catch (err) {
+				adapter.log.error(err);
+				adapter.stop();
+			}
+		}
 	});
 
 	adapter = new utils.Adapter(options);
@@ -56,7 +65,7 @@ function startAdapter(options) {
 
 
 	// start here!
-	adapter.on('ready', () => main(adapter));
+	//adapter.on('ready', () => main(adapter));
 
     // +++++++++++++++++++++++++ is called when adapter shuts down +++++++++++++++++++++++++
 
