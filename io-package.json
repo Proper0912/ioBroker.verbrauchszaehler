@@ -121,6 +121,7 @@
     "schedule": "*/59 * * * *",
     "enabled": true,
     "compact": true,
+    "materialize": true,
     "messagebox": true,
     "readme": "https://github.com/proper0912/ioBroker.verbrauchszaehler/blob/main/README.md",
     "dependencies": [
