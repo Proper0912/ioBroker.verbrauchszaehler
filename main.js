@@ -43,7 +43,8 @@ function startAdapter(options) {
 	options = options || {};
 	
 	Object.assign(options, {
-		name: adapterName,ready: () => {
+		name: adapterName,
+		ready: () => {
 			try {
 				adapter.log.debug("adapter.on-ready: << READY >>");
 					main(adapter);
@@ -65,7 +66,7 @@ function startAdapter(options) {
 
 
 	// start here!
-	//adapter.on('ready', () => main(adapter));
+	// adapter.on('ready', () => main(adapter));
 
     // +++++++++++++++++++++++++ is called when adapter shuts down +++++++++++++++++++++++++
 
@@ -183,6 +184,7 @@ async function sleep(ms) {
 
 
 async function getValue(settingsID){
+	adapter.log.debug("adapter.getValue: << getValue >>");
 	
 	var m = settingsID.date.month + 1; 
 	var d = settingsID.date.day + 1;
@@ -316,6 +318,7 @@ async function getValue(settingsID){
  * @param {{ today: Date; date: { seconds: number; minutes: number; hours: number; day: number; month: number; year: number; lastYear: number; }; }} settingsID
  */
  function getDateOfInstanc(settingsID) {
+	adapter.log.debug('adapter.getDateOfInstanc: << getDateOfInstanc >>');
 	
 	settingsID.today = new Date();
 	settingsID.date.seconds = new Date().getSeconds();
@@ -336,6 +339,7 @@ async function getValue(settingsID){
 // +++++++++++++++++++ main on start of Adapter ++++++++++++++++++++
 
 function main(adapter) {
+	adapter.log.debug('adapter.main: << MAIN >>');
 
 	settingsID = adapter.config;
 
@@ -802,14 +806,15 @@ function main(adapter) {
 
 	adapter.log.debug(`Nach dem Init der Value ${settingsID.value.calcDayDiffValue} ${settingsID.value.calcDayLastValue} ${settingsID.value.calcWeekDiffValue} ${settingsID.value.calcWeekLastValue} ${settingsID.value.instanceValue}`);
 	
-	if (adapter.run) {
+	if (adapter.on) {
 		adapter.setStateAsync("alive", { val: true, ack: true });
 		//pollingDate(true, settingsID);
 		//pollingData(true, settingsID);
-		adapter.getDateOfInstanc(settingsID);
-		adapter.getValue(settingsID);
-		adapter.calcValue(settingsID);
-		adapter.statisticDay(settingsID);
+		// @ts-ignore
+		getDateOfInstanc(settingsID);
+		getValue(settingsID);
+		calcValue(settingsID);
+		statisticDay(settingsID);
 	} else {
 		//pollingDate(false);
 		//pollingData(false);
@@ -862,6 +867,7 @@ async function pollingData(cmd, settingsID) {
 // +++++++++++++++++++ calc for day Value of Adapter ++++++++++++++++++++ 
 
 async function calcValue(settingsID) {
+	adapter.log.debug("adapter.calcValue: << calcValue >>");
 	
 	var m = settingsID.date.month + 1; 
 	var d = settingsID.date.day + 1;
@@ -1047,6 +1053,7 @@ function add(a, b) {
 // +++++++++++++++++++ make the statistic for Adapter ++++++++++++++++++++
 
 async function statisticDay(settingsID) {
+	adapter.log.debug("adapter.statisticDay: << statisticDay >>");
 
 	var m = settingsID.date.month + 1;
 	var mm = settingsID.date.month; 
