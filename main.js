@@ -797,15 +797,15 @@ function main(adapter) {
 	
 	if (adapter.connected) {
 		adapter.setStateAsync("alive", { val: true, ack: true });
-		pollingDate(true, settingsID);
-		pollingData(true, settingsID);
+		//pollingDate(true, settingsID);
+		//pollingData(true, settingsID);
 		adapter.getDateOfInstanc(settingsID);
 		adapter.getValue(settingsID);
 		adapter.calcValue(settingsID);
 		adapter.statisticDay(settingsID);
 	} else {
-		pollingDate(false);
-		pollingData(false);
+		//pollingDate(false);
+		//pollingData(false);
 		adapter.log.error("Instance not startet");
 	}
 
