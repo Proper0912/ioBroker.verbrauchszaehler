@@ -799,6 +799,10 @@ function main(adapter) {
 		adapter.setStateAsync("alive", { val: true, ack: true });
 		pollingDate(true, settingsID);
 		pollingData(true, settingsID);
+		adapter.getDateOfInstanc(settingsID);
+		adapter.getValue(settingsID);
+		adapter.calcValue(settingsID);
+		adapter.statisticDay(settingsID);
 	} else {
 		pollingDate(false);
 		pollingData(false);
@@ -860,7 +864,7 @@ async function calcValue(settingsID) {
 	acktualWeek = aktualWeekOfYear(settingsID);
 	months = dayPerMonth(settingsID);
 
-	
+	await getValue(settingsID);
 
 	if (settingsID.date.hours === 23 && settingsID.date.minutes === 59) {
 
