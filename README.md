@@ -20,7 +20,7 @@ Your total consumption from the start of the adapter.
 
 
 ### **Work in Progress**
-####  0.0.7  (2022-06 2022-12)
+####  0.0.8  (2022-06 2022-12)
 * (proper0912) Adjust readme text with instructions in German and English
 * (proper0912) Water consumption
 * (proper0912) add a widget for displaying statistics
@@ -31,6 +31,10 @@ Your total consumption from the start of the adapter.
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+###  0.0.7  (2022-11-09)
+* (proper0912) shedule aktivated
+* (proper0912) Bugfix
+
 ###  0.0.6  (2022-11-09)
 * (proper0912) Bugfix
 

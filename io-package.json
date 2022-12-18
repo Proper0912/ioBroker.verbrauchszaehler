@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "verbrauchszaehler",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "news": {
+      "0.0.7": {
+        "en": "Bugfix",
+        "de": "Bugfix",
+        "ru": "Bugfix",
+        "pt": "Bugfix",
+        "nl": "Bugfix",
+        "fr": "Bugfix",
+        "it": "Bugfix",
+        "es": "Bugfix",
+        "pl": "Bugfix",
+        "zh-cn": "Bugfix"
+      },
       "0.0.6": {
         "en": "Bugfix",
         "de": "Bugfix",
@@ -109,8 +121,6 @@
     "schedule": "*/59 * * * *",
     "enabled": true,
     "compact": true,
-    "singletonHost": true,
-    "materialize": true,
     "messagebox": true,
     "readme": "https://github.com/proper0912/ioBroker.verbrauchszaehler/blob/main/README.md",
     "dependencies": [
@@ -129,8 +139,7 @@
     "extIcon": "https://raw.githubusercontent.com/proper0912/ioBroker.verbrauchszaehler/main/admin/verbrauchszaehler.png",
     "type": "storage",
     "connectionType": "local",
-    "dataSource": "push",
-    "tier": 3
+    "dataSource": "poll"
   },
   "native": {
     "triggerID": " ",
