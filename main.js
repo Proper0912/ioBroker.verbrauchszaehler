@@ -840,8 +840,8 @@ async function pollingData(cmd, settingsID) {
 	if (cmd) {
 		poll = setInterval(() => {
 			getValue(settingsID);
-			statisticDay(settingsID);
 			calcValue(settingsID);
+			statisticDay(settingsID);
 		}, 60000);
 	};
 };
@@ -868,54 +868,54 @@ async function calcValue(settingsID) {
 
 		// ******************** calculation when oiltank filling up ***************************
 
-		var a = parseFloat(`${settingsID.value.calcDayLastValue}`);
-		var b = parseFloat(`${settingsID.value.instanceValue}`);
+		var a = parseFloat(`${settingsID.value.instanceValue}`);
+		var b = parseFloat(`${settingsID.value.calcDayLastValue}`);
 		var c;
 
 		if ( a > b ) {
 			c = sub(parseFloat(settingsID.value.instanceValue), parseFloat(settingsID.value.calcDayLastValue));
 			if ( c < 600) {
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 500);
 			} else if ( c < 1100 ) {
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 1000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 1000);
 			} else if ( c < 1600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 1500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 1500);
 			} else if ( c < 2100 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 2000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 2000);
 			} else if ( c < 2600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 2500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 2500);
 			} else if ( c < 3100 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 3000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 3000);
 			} else if ( c < 3600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 3500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 3500);
 			} else if ( c < 4100 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 4000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 4000);
 			} else if ( c < 4600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 4500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 4500);
 			} else if ( c < 5100 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 5000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 5000);
 			} else if ( c < 5600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 5500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 5500);
 			} else if ( c < 6100 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 6000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 6000);
 			} else if ( c < 6600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 6500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 6500);
 			} else if ( c < 7100 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 7000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 7000);
 			} else if ( c < 7600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 7500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 7500);
 			} else if ( c < 8100 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 8000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 8000);
 			} else if ( c < 8600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 8500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 8500);
 			} else if ( c < 9100 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 9000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 9000);
 			} else if ( c < 9600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 9500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 9500);
 			} else if ( c < 10100 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 10000);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 10000);
 			} else if ( c < 10600 ){
-				a = add(parseFloat(settingsID.value.calcDayLastValue), 10500);
+				b = add(parseFloat(settingsID.value.calcDayLastValue), 10500);
 			}
 		}
 		
@@ -935,7 +935,7 @@ async function calcValue(settingsID) {
 					adapter.log.debug(`Berechnung fertig: für den ${settingsID.date.date}.${m}.${settingsID.date.year} ergab ein Wert von ${settingsID.value.day}!`);
 					dayEneable = true;
 				} else {
-					adapter.log.debug(`Berechnung fehlgeschlagen!`);
+					adapter.log.debug(`Berechnung fehlgeschlagen! ${settingsID.value.calcDayLastValue} ; ${settingsID.value.instanceValue}`);
 				}
 				adapter.log.debug(`Day finish`)
 			}

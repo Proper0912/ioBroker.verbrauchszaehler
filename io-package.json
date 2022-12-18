@@ -105,7 +105,8 @@
     ],
     "license": "MIT",
     "platform": "Javascript/Node.js",
-    "mode": "daemon",
+    "mode": "schedule",
+    "schedule": "*/59 * * * *",
     "enabled": true,
     "compact": true,
     "singletonHost": true,
@@ -114,7 +115,7 @@
     "readme": "https://github.com/proper0912/ioBroker.verbrauchszaehler/blob/main/README.md",
     "dependencies": [
       {
-        "js-controller": ">=2.0.0"
+        "js-controller": ">=4.0.0"
       }
     ],
     "loglevel": "info",
