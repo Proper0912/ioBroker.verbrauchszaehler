@@ -20,9 +20,9 @@ Your total consumption from the start of the adapter.
 
 
 ### **Work in Progress**
-####  0.0.8  (2022-06 2022-12)
+####  0.0.8  (2023-01 2023-12)
 * (proper0912) Adjust readme text with instructions in German and English
-* (proper0912) Water consumption
+* (proper0912) Integrated water consumption 
 * (proper0912) add a widget for displaying statistics
 
 ## Changelog
@@ -31,6 +31,9 @@ Your total consumption from the start of the adapter.
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+###  0.0.78  (2022-12-29)
+* (proper0912) Added oil refill / Prepare for water / Switched to timer / Improved structure
+
 ###  0.0.7  (2022-11-09)
 * (proper0912) shedule aktivated
 * (proper0912) Bugfix

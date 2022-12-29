@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "verbrauchszaehler",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "news": {
+      "0.0.8": {
+        "en": "Added oil refill / Prepare for water / Switched to timer / Improved structure",
+        "de": "Öl-Auffülung Hinzugefügt / Vorbereitung für Wasser / Auf Zeitschaltung um gestellt / Struktur verbessert",
+        "ru": "Добавлена заливка масла/Подготовка к воде/Переключено на таймер/Улучшенная структура",
+        "uk": "Додано заправку масла / Підготовка до води / Перехід на таймер / Покращена структура",
+        "pt": "Refil de óleo adicionado / Preparar para água / Comutado para temporizador / Estrutura aprimorada",
+        "nl": "Olie bijvullen toegevoegd / Bereid je voor op water / Overgeschakeld naar timer / Verbeterde structuur",
+        "fr": "Remplissage d'huile ajouté / Préparation pour l'eau / Passage à la minuterie / Structure améliorée",
+        "it": "Aggiunta ricarica olio / Preparazione acqua / Passato al timer / Struttura migliorata",
+        "es": "Recarga de aceite añadida / Preparación para agua / Cambiado a temporizador / Estructura mejorada",
+        "pl": "Dodano uzupełnienie oleju / Przygotuj się na wodę / Przełączono na timer / Ulepszona struktura",
+        "zh-cn": "添加加油/準備水/切換為定時器/改進結構"
+      },
       "0.0.7": {
         "en": "Bugfix",
         "de": "Bugfix",
@@ -118,7 +131,7 @@
     "license": "MIT",
     "platform": "Javascript/Node.js",
     "mode": "schedule",
-    "schedule": "*/59 * * * *",
+    "schedule": "9,19,29,39,49,59 * * * *",
     "enabled": true,
     "compact": true,
     "materialize": true,
@@ -140,11 +153,11 @@
     "extIcon": "https://raw.githubusercontent.com/proper0912/ioBroker.verbrauchszaehler/main/admin/verbrauchszaehler.png",
     "type": "storage",
     "connectionType": "local",
-    "dataSource": "poll"
+    "dataSource": "push"
   },
   "native": {
-    "triggerID": " ",
-    "medium": " ",
+    "triggerID": "",
+    "medium": "",
     "day": true,
     "week": false,
     "month": false,
