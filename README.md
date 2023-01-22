@@ -20,7 +20,7 @@ Your total consumption from the start of the adapter.
 
 
 ### **Work in Progress**
-####  0.0.8  (2023-01 2023-12)
+####  0.0.10  (2023-01 2023-12)
 * (proper0912) Adjust readme text with instructions in German and English
 * (proper0912) Integrated water consumption 
 * (proper0912) add a widget for displaying statistics
