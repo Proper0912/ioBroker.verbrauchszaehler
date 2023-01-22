@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "verbrauchszaehler",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "news": {
+      "0.0.9": {
+        "en": "Added oil refill automatic / Statistic for 1,2 and 7 Days / Improved structure",
+        "de": "Ölnachfüllautomatik hinzugefügt / Statistik für 1,2 und 7 Tage / Verbesserte Struktur",
+        "ru": "Добавлена автоматическая заправка масла / Статистика за 1, 2 и 7 дней / Улучшена структура",
+        "uk": "Додана автоматична дозаправка масла / Статистика за 1,2 і 7 днів / Покращена структура",
+        "pt": "Adicionado reabastecimento de óleo automático / Estatística para 1,2 e 7 dias / Estrutura aprimorada",
+        "nl": "Automatische olievulling toegevoegd / Statistiek voor 1, 2 en 7 dagen / Verbeterde structuur",
+        "fr": "Remplissage d'huile automatique ajouté / Statistique pour 1,2 et 7 jours / Structure améliorée",
+        "it": "Aggiunta ricarica olio automatica / Statistiche per 1,2 e 7 giorni / Struttura migliorata",
+        "es": "Agregada recarga de aceite automática / Estadística para 1,2 y 7 Días / Estructura mejorada",
+        "pl": "Dodano automatyczne uzupełnianie oleju / Statystyka dla 1,2 i 7 dni / Poprawiona struktura",
+        "zh-cn": "添加自動加油/統計 1,2 和 7 天/改進結構"
+      },
       "0.0.8": {
         "en": "Added oil refill / Prepare for water / Switched to timer / Improved structure",
         "de": "Öl-Auffülung Hinzugefügt / Vorbereitung für Wasser / Auf Zeitschaltung um gestellt / Struktur verbessert",
