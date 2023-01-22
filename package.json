@@ -15,32 +15,57 @@
     "type": "git",
     "url": "https://github.com/proper0912/ioBroker.verbrauchszaehler"
   },
+  "engines": {
+    "node": ">=14.5.0"
+  },
   "dependencies": {
-    "@iobroker/adapter-core": "^2.6.0"
+    "@iobroker/adapter-core": "^2.6.7",
+    "axios": "^0.27.2",
+    "crypto": "^1.0.1",
+    "xml2js": "0.4.23",
+    "xmlbuilder": "^15.1.1"
   },
   "deprecated": false,
   "devDependencies": {
-      "@alcalzone/release-script": "^3.5.6",
-      "@alcalzone/release-script-plugin-iobroker": "^3.5.7",
-      "@alcalzone/release-script-plugin-license": "^3.5.3",
-      "axios": "^0.24.0",
-      "chai": "^4.3.6",
-      "gulp": "^4.0.2",
-      "mocha": "^9.2.2"
+    "@alcalzone/release-script": "^3.5.9",
+    "@alcalzone/release-script-plugin-iobroker": "^3.5.9",
+    "@alcalzone/release-script-plugin-license": "^3.5.9",
+    "@iobroker/adapter-dev": "^1.2.0",
+    "@iobroker/testing": "^4.1.0",
+    "@types/chai": "^4.3.4",
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.11.18",
+    "@types/proxyquire": "^1.3.28",
+    "@types/sinon": "^10.0.13",
+    "@types/sinon-chai": "^3.2.9",
+    "chai": "^4.3.7",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^8.31.0",
+    "mocha": "^10.2.0",
+    "proxyquire": "^2.1.3",
+    "sinon": "^15.0.1",
+    "sinon-chai": "^3.7.0",
+    "typescript": "~4.9.4"
   },
   "main": "main.js",
   "files": [
-    "admin/",
+    "admin{,/!(src)/**}/!(tsconfig|tsconfig.*).json",
+    "admin{,/!(src)/**}/*.{html,css,png,svg,jpg,js}",
     "io-package.json",
     "LICENSE",
     "main.js"
-  ],
-  "scripts": {
+  ],"scripts": {
+    "lint": "eslint --ext .js,.jsx",
     "release": "release-script",
     "release-major": "release-script major --yes",
     "release-minor": "release-script minor --yes",
     "release-patch": "release-script patch --yes",
-    "test": "node node_modules/mocha/bin/mocha --exit"
+    "test": "npm run test:js && npm run test:package",
+    "test:integration": "mocha test/integration --exit",
+    "test:js": "mocha --config test/mocharc.custom.json \"{!(node_modules|test)/**/*.test.js,*.test.js,test/**/test!(PackageFiles|Startup).js}\"",
+    "test:package": "mocha test/package --exit",
+    "translate": "translate-adapter"
   },
   "bugs": {
     "url": "https://github.com/proper0912/ioBroker.verbrauchszaehler/issues"

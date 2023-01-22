@@ -17,12 +17,9 @@
     <script type="text/javascript" src="../../lib/js/selectID.js"></script>
     <script type="text/javascript" src="../../lib/js/jquery-ui.min.js"></script>
     <script type="text/javascript" src="../../lib/js/jquery.fancytree-all.min.js"></script>
-	
-	<script type="text/javascript" src="./jquery.ui.touch-punch.min.js"></script>
 
 	<!-- Load our own files -->
 	<link rel="stylesheet" type="text/css" href="style.css" />
-    <script type="text/javascript" src="type-detector.js"></script>
 	<script type="text/javascript" src="words.js"></script>
     <script type="text/javascript" src="index_m.js"></script> 
 
@@ -68,7 +65,7 @@
 					</div>
 
 					<div class="row">
-						<div class="col s6 l4 input-field">
+						<div class="col s1 l4 input-field">
 							<input type="text" class="value" id="triggerID" />
 							<!--<label for="triggerID" class="translate">Objekt-ID:</label> -->
 							<span class="translate">Object ID: (oil tank level in liters)</span>
@@ -79,7 +76,7 @@
 					</div>
 
 					<div class="row">
-						<div class="col s6 l4 input-field">
+						<div class="col s1 l2 input-field">
 							<select class="value" id="medium">
 								<option class="translate" value="" disabled selected>Select the medium</option>
 								<option class="translate" value="oil">Oil</option>
@@ -87,6 +84,32 @@
 							</select>
 							<!--<label class="translate">Medium</label> -->
 							<span class="translate">Medium</span>
+						</div>
+						<div class="col s1 l2 input-field">
+							<select class="value" id="unit">
+								<option class="translate" value="" disabled selected>Select the Unit</option>
+								<option class="translate" value="L">L</option>
+								<option class="translate" value="m³">m³</option>
+							</select>
+							<!--<label class="translate">Unit</label> -->
+							<span class="translate">Unit</span>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col s1 l2">
+							<input class="value" id="convert" type="checkbox" />
+							<label for="convert" class="translate">Convert</label>
+							<span class="translate"></span>
+						</div>
+						<div class="col s1 l2 input-field">
+							<select class="value" id="convertunit">
+								<option class="translate" value="" disabled selected>Select the Unit</option>
+								<option class="translate" value="L">L</option>
+								<option class="translate" value="m³">m³</option>
+							</select>
+							<!--<label class="translate">Unit</label> -->
+							<span class="translate">Unit</span>
 						</div>
 					</div>
 
@@ -122,12 +145,6 @@
 						</div>
 					</div>
 					
-				</div>
-
-				<div class="row">
-					<div class="col s12">
-						<p class="translate">on save adapter restarts with new config immediately</p>
-					</div>
 				</div>
 			</div>
 

@@ -131,7 +131,7 @@
     "license": "MIT",
     "platform": "Javascript/Node.js",
     "mode": "schedule",
-    "schedule": "9,19,29,39,49,59 * * * *",
+    "schedule": "5 * * * *",
     "enabled": true,
     "compact": true,
     "materialize": true,
@@ -158,6 +158,7 @@
   "native": {
     "triggerID": "",
     "medium": "",
+    "unit": "",
     "day": true,
     "week": false,
     "month": false,
