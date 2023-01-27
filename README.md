@@ -31,6 +31,9 @@ Your total consumption from the start of the adapter.
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+###  0.0.10  (2022-12-29)
+* (proper0912) Added oil refill automatic / Statistic for 1,2 and 7 Days / Improved structure
+
 ###  0.0.9  (2022-12-29)
 * (proper0912) Added oil refill automatic / Statistic for 1,2 and 7 Days / Improved structure
 

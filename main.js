@@ -770,7 +770,6 @@ async function calcValueOil(settingsID) {
 				}
 				await adapter.log.debug(`Day finish`);
 			}
-			await sleep(500);
 			// ******************** calculation days for the week statistic ***************************
 			if (settingsID.week && dayEneable) {
 				settingsID.value.week.val = settingsID.value.calcDayDiffValue.val;
@@ -793,7 +792,6 @@ async function calcValueOil(settingsID) {
 				weekEneable = true;
 				await adapter.log.debug(`Week finish`);
 			}
-			await sleep(500);
 			// ******************** calculation month statistic ***************************
 			if (settingsID.month && dayEneable && weekEneable) {
 				// adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.${d}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
@@ -810,7 +808,6 @@ async function calcValueOil(settingsID) {
 				monthEneable = true;
 				await adapter.log.debug(`Month finish`);
 			}
-			await sleep(500);
 			// ******************** calculation year statistic ***************************
 			if (settingsID.year && dayEneable && weekEneable && monthEneable) {
 				// adapter.setStateAsync(`${settingsID.path.week}${acktualWeek}.${d}.dayValue`, { val: parseFloat(`${settingsID.value.calcDayDiffValue}`), ack: true } )
